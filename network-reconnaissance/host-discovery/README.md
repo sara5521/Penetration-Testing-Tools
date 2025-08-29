@@ -45,3 +45,8 @@ netdiscover -r <target-ip>
 ```bash
 masscan <target-ip> -p0-65535 --rate=1000
 ```
+
+🧠 Notes
+- ICMP may be blocked — always try multiple methods.
+- For LAN (local network), arp-scan and netdiscover are most reliable.
+- Use nmap later for deeper port and service scans after finding live hosts.
