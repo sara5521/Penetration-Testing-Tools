@@ -23,7 +23,25 @@ This section lists the most common tools and commands used to discover **live ho
 ```bash
 ping <target-ip>
 ```
-### 🔹 1. Ping (Basic)
+### 🔹 2. fping (Range Ping)
 ```bash
-ping <target-ip>
+fping -a -g <target-ip>
+```
+- -a: Show only a live hosts
+- -g: IP range
+### 🔹 3. Nmap Ping Scan
+```bash
+nmap -sn <target-ip>
+```
+### 🔹 4. ARP Scan (Local Network)
+```bash
+arp-scan <target-ip>
+```
+### 🔹 5. Netdiscover (Interactive)
+```bash
+netdiscover -r <target-ip>
+```
+### 🔹 6. Masscan (Caution!)
+```bash
+masscan <target-ip> -p0-65535 --rate=1000
 ```
