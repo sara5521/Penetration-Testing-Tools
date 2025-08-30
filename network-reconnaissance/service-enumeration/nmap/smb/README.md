@@ -52,7 +52,7 @@ nmap -p 445 --script smb-protocols <target-ip>
 nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode" <target-ip>
 ```
 
-🧠 Tips
+## 🧠 Tips
 - Make sure port 445 is open.
 - Some scripts may require authentication.
 - Combine with tools like:
