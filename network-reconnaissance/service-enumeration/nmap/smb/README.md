@@ -50,7 +50,7 @@ nmap -p 445 --script smb-enum-shares <target-ip>
 ```bash
 nmap -p 445 --script smb-ls <target-ip>
 ```
-Use ```smb-enum-shares``` to identify available shares, and smb-ls to see the contents inside them.
+Use ```smb-enum-shares``` to identify available shares, and ```smb-ls``` to see the contents inside them.
 
 ### 👥 6. Enumerate Users
 ```bash
@@ -97,6 +97,6 @@ nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-s
 - Make sure port 445 is open.
 - Some scripts may require authentication.
 - Combine with tools like:
-  - enum4linux
-  - smbclient
-  - crackmapexec
+  - ```enum4linux```
+  - ```smbclient```
+  - ```crackmapexec```
