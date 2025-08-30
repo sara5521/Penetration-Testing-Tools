@@ -49,6 +49,27 @@ Nmap is one of the most powerful tools used for **port scanning** and **service 
   nmap -oN results.txt <target-ip>
   ```
 
+---
+
+## 💾 Saving Nmap Results
+
+You can save Nmap scan results in various formats for reporting, analysis, or automation.
+
+---
+
+### 📝 Save in XML format
+```bash
+nmap -sV -Pn -oX myscan.xml demo.ine.local
+```
+- ```-sV```: Detects service versions
+- ```-Pn```: Skips host discovery (assumes host is up)
+- ```-oX```: Output in XML format
+- ```myscan.xml```: Output file name
+🔎 You can later open this XML with tools like:
+- ```xsltproc``` (to convert to HTML)
+- ```Nmap Parser``` (Python modules)
+- Import into vulnerability scanners
+
 ## 🧠 Tips
 - Use -T4 for faster scans (aggressive timing).
 - Use -Pn if ping is blocked:
