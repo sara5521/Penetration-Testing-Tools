@@ -50,7 +50,7 @@ nmap -p 445 --script smb-enum-shares <target-ip>
 ```bash
 nmap -p 445 --script smb-ls <target-ip>
 ```
-Use smb-enum-shares to identify available shares, and smb-ls to see the contents inside them.
+Use ```smb-enum-shares``` to identify available shares, and smb-ls to see the contents inside them.
 
 ### 👥 6. Enumerate Users
 ```bash
