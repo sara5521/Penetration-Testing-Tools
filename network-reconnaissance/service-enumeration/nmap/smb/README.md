@@ -93,6 +93,8 @@ nmap -p 445 --script smb-enum-services <target-ip>
 nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-stats" <target-ip>
 ```
 
+---
+
 ## 🧠 Tips
 - Make sure port 445 is open.
 - Some scripts may require authentication.
