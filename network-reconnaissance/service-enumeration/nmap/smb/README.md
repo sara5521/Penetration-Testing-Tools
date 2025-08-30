@@ -47,9 +47,19 @@ nmap -p 445 --script smb-enum-sessions <target-ip>
 nmap -p 445 --script smb-protocols <target-ip>
 ```
 
+### 📊 7. View SMB Server Stats
+```bash
+nmap -p 445 --script smb-server-stats <target-ip>
+```
+Displays:
+- Open files
+- Active sessions
+- Logged in users
+- Uptime (if available)
+  
 ### 🔁 All-in-One Scan
 ```bash
-nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode" <target-ip>
+nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-stats" <target-ip>
 ```
 
 ## 🧠 Tips
