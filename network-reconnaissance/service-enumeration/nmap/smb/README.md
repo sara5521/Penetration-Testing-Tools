@@ -6,13 +6,15 @@ This section includes useful Nmap scripts to enumerate SMB (Server Message Block
 
 ## 🎯 Purpose
 
-These scripts help gather important information like:
-- OS version
-- Hostname & domain
+These scripts help you gather important information from the SMB service, such as:
+- Operating system and hostname
 - Shared folders (shares)
-- User accounts
-- SMB protocol version
-- Security settings (e.g., SMB signing)
+- Users and groups
+- Domain or workgroup names
+- Security configurations
+- Server statistics and uptime
+- Protocol versions
+- Running services
 
 ---
 
@@ -23,28 +25,36 @@ These scripts help gather important information like:
 nmap -p 445 --script smb-os-discovery <target-ip>
 ```
 
-### 👥 2. Enumerate Users
+### 🌐 2. Detect SMB Protocol Version
 ```bash
-nmap -p 445 --script smb-enum-users <target-ip>
+nmap -p 445 --script smb-protocols <target-ip>
 ```
 
-### 📂 3. Enumerate Shares
-```bash
-nmap -p 445 --script smb-enum-shares <target-ip>
-```
-### 🔐 4. Check SMB Security Mode
+### 🔐 3. Check SMB Security Mode
 ```bash
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
 
-### 🔄 5. List Active Sessions
+### 🔄 4. List Active Sessions
 ```bash
 nmap -p 445 --script smb-enum-sessions <target-ip>
 ```
 
-### 🌐 6. Detect SMB Protocol Version
+### 📂 5. Enumerate and Browse SMB Shares
+
+- List shared folders:
 ```bash
-nmap -p 445 --script smb-protocols <target-ip>
+nmap -p 445 --script smb-enum-shares <target-ip>
+```
+- List files inside the shares:
+```bash
+nmap -p 445 --script smb-ls <target-ip>
+```
+Use smb-enum-shares to identify available shares, and smb-ls to see the contents inside them.
+
+### 👥 6. Enumerate Users
+```bash
+nmap -p 445 --script smb-enum-users <target-ip>
 ```
 
 ### 📊 7. View SMB Server Stats
@@ -56,6 +66,27 @@ Displays:
 - Active sessions
 - Logged in users
 - Uptime (if available)
+
+### 🏢 8. Enumerate SMB Domains / Workgroups
+```bash
+nmap -p 445 --script smb-enum-domains <target-ip>
+```
+- Attempts to list Windows domains or workgroups.
+- Useful in internal AD environments.
+
+### 👤 9. Enumerate User Groups
+```bash
+nmap -p 445 --script smb-enum-groups <target-ip>
+```
+- Lists local or domain user groups on the target.
+- Helps in identifying roles like Administrators, Guests, Remote Users.
+
+### ⚙️ 10. Enumerate Running Services
+```bash
+nmap -p 445 --script smb-enum-services <target-ip>
+```
+- Lists Windows services running on the target via SMB.
+- Helps identify exposed or vulnerable services.
   
 ### 🔁 All-in-One Scan
 ```bash
