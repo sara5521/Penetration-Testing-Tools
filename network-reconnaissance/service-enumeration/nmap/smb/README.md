@@ -60,7 +60,7 @@ This script tries to list current SMB sessions — in other words, it shows:
 - Who is currently connected to the SMB server
 - What users or machines are active
 - How many open sessions exist
-#### 🧠 Why is this useful?
+#### 🧠 Why it's useful?
 - Shows real-time activity on the target.
 - Helps identify:
   - Logged-in users
@@ -80,7 +80,7 @@ It tells you:
 - Whether they are readable or writable
 - If they're administrative or public shares
 
-#### 🧠 Why is this useful?
+#### 🧠 Why it's useful?
 - Helps you find files or folders that are publicly accessible
 - Great for finding sensitive data like ```flag.txt```, ```backup.zip```, or ```config.bak```.
 - If a share is writable, you might be able to upload malicious files.
@@ -92,12 +92,29 @@ nmap -p 445 --script smb-ls <target-ip>
 #### 📌 Purpose:
 This script tries to list the actual files and folders inside each shared folder (share) found on the SMB server.
 So after you discover shares with ```smb-enum-shares```, you can use ```smb-ls``` to look inside them.
-In other word, use ```smb-enum-shares``` to identify available shares, and ```smb-ls``` to see the contents inside them.
+In other words, use ```smb-enum-shares``` to identify available shares, and ```smb-ls``` to see the contents inside them.
+
+#### 🧠 Why it's useful?
+- Helps you see real files in public shares.
+- You may find:
+  - ```flag.txt```
+  - ```credentials.txt```
+  - ```backup.zip```
+- If you find something interesting, you can download it using ```smbclient```.
 
 ## 👥 6. Enumerate Users
 ```bash
 nmap -p 445 --script smb-enum-users <target-ip>
 ```
+#### 📌 Purpose:
+This script tries to list user accounts on a Windows machine by querying the SMB service.
+#### 🧠 Why it's useful?
+- It gives you a list of usernames that exist on the system.
+- You can use these names for:
+  - Brute-force attacks (e.g. with Hydra)
+  - Password spraying
+  - Understanding roles and access levels
+- Sometimes even works with anonymous access
 
 ## 📊 7. View SMB Server Stats
 ```bash
