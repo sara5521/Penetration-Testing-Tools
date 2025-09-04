@@ -29,11 +29,11 @@ nmap -p 445 --script smb-os-discovery <target-ip>
 ```bash
 nmap -p 445 --script smb-protocols <target-ip>
 ```
-### 📌 Purpose:
+#### 📌 Purpose:
 This script shows which SMB version the server supports:
 - SMBv1 → Old and not secure ⚠️
 - SMBv2 / SMBv3 → Newer and more secure ✅
-### 🧠 Why is this useful?
+#### 🧠 Why is this useful?
 - If the server supports SMBv1, it's risky and may be vulnerable to attacks like EternalBlue.
 - Tells you whether modern, secure protocols (SMBv3) are supported.
 - Important for deciding what kind of attack or enumeration you can try.
@@ -42,12 +42,12 @@ This script shows which SMB version the server supports:
 ```bash
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
-### 📌 Purpose:
+#### 📌 Purpose:
 This script checks how secure the SMB server is by showing:
 - If SMB signing is supported
 - If SMB signing is required
 - What type of authentication is used (user or share level)
-### 🧠 Why it's useful?
+#### 🧠 Why it's useful?
 - If signing is not required, the server might be vulnerable to spoofing or MiTM (man-in-the-middle) attacks.
 - Helps you understand how the target is protected.
 
@@ -55,12 +55,12 @@ This script checks how secure the SMB server is by showing:
 ```bash
 nmap -p 445 --script smb-enum-sessions <target-ip>
 ```
-### 📌 Purpose:
+#### 📌 Purpose:
 This script tries to list current SMB sessions — in other words, it shows:
 - Who is currently connected to the SMB server
 - What users or machines are active
 - How many open sessions exist
-### 🧠 Why is this useful?
+#### 🧠 Why is this useful?
 - Shows real-time activity on the target.
 - Helps identify:
   - Logged-in users
@@ -89,7 +89,10 @@ It tells you:
 ```bash
 nmap -p 445 --script smb-ls <target-ip>
 ```
-Use ```smb-enum-shares``` to identify available shares, and ```smb-ls``` to see the contents inside them.
+#### 📌 Purpose:
+This script tries to list the actual files and folders inside each shared folder (share) found on the SMB server.
+So after you discover shares with ```smb-enum-shares```, you can use ```smb-ls``` to look inside them.
+In other word, use ```smb-enum-shares``` to identify available shares, and ```smb-ls``` to see the contents inside them.
 
 ## 👥 6. Enumerate Users
 ```bash
