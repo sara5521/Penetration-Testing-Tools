@@ -38,6 +38,14 @@ This script shows which SMB version the server supports:
 ```bash
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
+#### 📌 Purpose:
+This script checks how secure the SMB server is by showing:
+- If SMB signing is supported
+- If SMB signing is required
+- What type of authentication is used (user or share level)
+#### 🧠 Why it's useful:
+- If signing is not required, the server might be vulnerable to spoofing or MiTM (man-in-the-middle) attacks.
+- Helps you understand how the target is protected.
 
 ### 🔄 4. List Active Sessions
 ```bash
