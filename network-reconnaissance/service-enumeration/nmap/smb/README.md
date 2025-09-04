@@ -173,6 +173,7 @@ nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-s
 ```
 #### 📌 Purpose:
 This script tries to list the Windows services that are running on the target through SMB.
+
 Think of services as background programs like:
 - Remote Desktop
 - Windows Update
