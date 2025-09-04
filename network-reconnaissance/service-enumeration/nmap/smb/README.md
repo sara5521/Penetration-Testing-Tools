@@ -168,13 +168,6 @@ This script tries to list the Windows groups on the target — groups are like "
 ```bash
 nmap -p 445 --script smb-enum-services <target-ip>
 ```
-- Lists Windows services running on the target via SMB.
-- Helps identify exposed or vulnerable services.
-  
-## 🔁 All-in-One Scan
-```bash
-nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-stats" <target-ip>
-```
 #### 📌 Purpose:
 This script tries to list the Windows services that are running on the target through SMB.
 
@@ -188,6 +181,46 @@ Think of services as background programs like:
 - Shows which services are running or stopped.
 - Helps identify possible entry points or privilege escalation targets.
 - Example: If ```Remote Desktop``` is running, you might try RDP login later.
+
+## 🧾 What is ```--script-args``` in Nmap?
+```bash
+nmap -p 445 --script-args
+```
+#### 📌 Purpose:
+```--script-args``` lets you customize the behavior of NSE scripts in Nmap by providing extra input (like usernames, passwords, timeouts, etc.).
+
+It’s like giving the script extra instructions.
+#### ✅ Basic Syntax:
+```bash
+nmap -p 445 --script <script-name> --script-args <key>=<value>
+```
+You can provide one or more arguments, separated by commas.
+### 🧪 Examples with SMB:
+#### 🔐 Example 1: Login with username and password
+```bash
+nmap -p 445 --script smb-enum-users --script-args smbuser=admin,smbpass=123456 <target-ip>
+```
+This tells the script to try using these credentials instead of anonymous login.
+#### 🕵️‍♀️ Example 2: Specify domain
+```bash
+nmap -p 445 --script smb-enum-shares --script-args smbuser=user1,smbpass=pass123,domain=WORKGROUP <target-ip>
+```
+#### 🔄 Example 3: Set script timeout
+```bash
+nmap -p 445 --script smb-enum-sessions --script-args timeout=20s <target-ip>
+```
+### 🔧 Common --script-args keys for SMB:
+| Key       | Description                 |
+| --------- | --------------------------- |
+| `smbuser` | Username for SMB login      |
+| `smbpass` | Password for SMB login      |
+| `domain`  | Windows domain or workgroup |
+| `timeout` | Script timeout (e.g. 10s)   |
+
+## 🔁 All-in-One Scan
+```bash
+nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-stats" <target-ip>
+```
 
 ## 🧠 Tips
 - Make sure port 445 is open.
