@@ -135,15 +135,30 @@ This script gets real-time stats from the SMB server, like:
 ```bash
 nmap -p 445 --script smb-enum-domains <target-ip>
 ```
-- Attempts to list Windows domains or workgroups.
-- Useful in internal AD environments.
+#### 📌 Purpose:
+This script tries to list the Windows domains or workgroups the SMB server belongs to.
+Think of a domain as the "name of the Windows network" (like ```CORP```, ```DEMO.LOCAL```, or ```WORKGROUP```).
+#### 🧠 Why it's useful?
+- Helps you know what domain or workgroup the machine belongs to.
+- Useful for:
+  - Active Directory attacks
+  - Targeting specific domain users
+  - Mapping the Windows network
+- Sometimes reveals the domain SID (Security Identifier)
 
 ## 👤 9. Enumerate User Groups
 ```bash
 nmap -p 445 --script smb-enum-groups <target-ip>
 ```
-- Lists local or domain user groups on the target.
-- Helps in identifying roles like Administrators, Guests, Remote Users.
+#### 📌 Purpose:
+This script tries to list the Windows groups on the target — groups are like "roles" or "permission levels" for users.
+#### 🧠 Why it's useful?
+- Helps you understand user roles and privileges.
+- Can reveal if there’s a “Remote Desktop Users” group (target for RDP access).
+- Useful for:
+  - Privilege escalation
+  - Brute-force targeting
+  - Mapping group memberships in Active Directory
 
 ## ⚙️ 10. Enumerate Running Services
 ```bash
@@ -156,6 +171,18 @@ nmap -p 445 --script smb-enum-services <target-ip>
 ```bash
 nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-stats" <target-ip>
 ```
+#### 📌 Purpose:
+This script tries to list the Windows services that are running on the target through SMB.
+Think of services as background programs like:
+- Remote Desktop
+- Windows Update
+- Print Spooler
+- Antivirus
+- etc.
+#### 🧠 Why it's useful?
+- Shows which services are running or stopped.
+- Helps identify possible entry points or privilege escalation targets.
+- Example: If ```Remote Desktop``` is running, you might try RDP login later.
 
 ## 🧠 Tips
 - Make sure port 445 is open.
