@@ -29,6 +29,9 @@ nmap -p 445 --script smb-os-discovery <target-ip>
 ```bash
 nmap -p 445 --script smb-protocols <target-ip>
 ```
+يكشف أي إصدار SMB يستخدمه السيرفر:
+- SMBv1 → قديم وغير آمن (عرضة لثغرات مثل EternalBlue)
+- SMBv2, SMBv3 → أفضل، لكن قد تحتوي على ثغرات في بعض الإعدادات
 
 ### 🔐 3. Check SMB Security Mode
 ```bash
