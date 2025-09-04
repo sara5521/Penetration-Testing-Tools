@@ -31,8 +31,12 @@ nmap -p 445 --script smb-protocols <target-ip>
 ```
 #### 📌 Purpose:
 This script shows which SMB version the server supports:
-- SMBv1 → Old and not secure (can be hacked using attacks like EternalBlue)
-- SMBv2 / SMBv3 → Newer and more secure, but might still have weaknesses if not configured properly
+- SMBv1 → Old and not secure ⚠️
+- SMBv2 / SMBv3 → Newer and more secure ✅
+#### 🧠 Why is this useful?
+- If the server supports SMBv1, it's risky and may be vulnerable to attacks like EternalBlue.
+- Tells you whether modern, secure protocols (SMBv3) are supported.
+- Important for deciding what kind of attack or enumeration you can try.
 
 ### 🔐 3. Check SMB Security Mode
 ```bash
@@ -43,7 +47,7 @@ This script checks how secure the SMB server is by showing:
 - If SMB signing is supported
 - If SMB signing is required
 - What type of authentication is used (user or share level)
-#### 🧠 Why it's useful:
+#### 🧠 Why it's useful?
 - If signing is not required, the server might be vulnerable to spoofing or MiTM (man-in-the-middle) attacks.
 - Helps you understand how the target is protected.
 
@@ -51,6 +55,17 @@ This script checks how secure the SMB server is by showing:
 ```bash
 nmap -p 445 --script smb-enum-sessions <target-ip>
 ```
+#### 📌 Purpose:
+This script tries to list current SMB sessions — in other words, it shows:
+- Who is currently connected to the SMB server
+- What users or machines are active
+- How many open sessions exist
+#### 🧠 Why is this useful?
+- Shows real-time activity on the target.
+- Helps identify:
+  - Logged-in users
+  - IPs of other attackers or admins
+  - If the system is actively being used
 
 ### 📂 5. Enumerate and Browse SMB Shares
 
@@ -58,6 +73,18 @@ nmap -p 445 --script smb-enum-sessions <target-ip>
 ```bash
 nmap -p 445 --script smb-enum-shares <target-ip>
 ```
+#### 📌 Purpose:
+This script lists all shared folders (also called shares) on a Windows machine over SMB.
+It tells you:
+- Which folders are being shared
+- Whether they are readable or writable
+- If they're administrative or public shares
+
+#### 🧠 Why is this useful?
+- Helps you find files or folders that are publicly accessible
+- Great for finding sensitive data like ```flag.txt```, ```backup.zip```, or ```config.bak```.
+- If a share is writable, you might be able to upload malicious files.
+
 - List files inside the shares:
 ```bash
 nmap -p 445 --script smb-ls <target-ip>
