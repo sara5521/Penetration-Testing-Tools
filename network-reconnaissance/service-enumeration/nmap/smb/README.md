@@ -79,7 +79,6 @@ It tells you:
 - Which folders are being shared
 - Whether they are readable or writable
 - If they're administrative or public shares
-
 #### 🧠 Why it's useful?
 - Helps you find files or folders that are publicly accessible
 - Great for finding sensitive data like ```flag.txt```, ```backup.zip```, or ```config.bak```.
@@ -93,7 +92,6 @@ nmap -p 445 --script smb-ls <target-ip>
 This script tries to list the actual files and folders inside each shared folder (share) found on the SMB server.
 So after you discover shares with ```smb-enum-shares```, you can use ```smb-ls``` to look inside them.
 In other words, use ```smb-enum-shares``` to identify available shares, and ```smb-ls``` to see the contents inside them.
-
 #### 🧠 Why it's useful?
 - Helps you see real files in public shares.
 - You may find:
@@ -120,11 +118,18 @@ This script tries to list user accounts on a Windows machine by querying the SMB
 ```bash
 nmap -p 445 --script smb-server-stats <target-ip>
 ```
-Displays:
-- Open files
-- Active sessions
-- Logged in users
-- Uptime (if available)
+#### 📌 Purpose:
+This script gets real-time stats from the SMB server, like:
+- How many files are open
+- How many users are connected
+- How many active SMB sessions
+- Server uptime (if available)
+#### 🧠 Why it's useful?
+- Shows if the server is busy or being used by other people.
+- Helps you find out:
+  - If an admin or another hacker is connected 👀
+  - How long the server has been running
+- Can reveal useful behavior or targets for privilege escalation
 
 ## 🏢 8. Enumerate SMB Domains / Workgroups
 ```bash
