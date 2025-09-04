@@ -75,6 +75,7 @@ nmap -p 445 --script smb-enum-shares <target-ip>
 ```
 #### 📌 Purpose:
 This script lists all shared folders (also called shares) on a Windows machine over SMB.
+
 It tells you:
 - Which folders are being shared
 - Whether they are readable or writable
@@ -90,7 +91,9 @@ nmap -p 445 --script smb-ls <target-ip>
 ```
 #### 📌 Purpose:
 This script tries to list the actual files and folders inside each shared folder (share) found on the SMB server.
+
 So after you discover shares with ```smb-enum-shares```, you can use ```smb-ls``` to look inside them.
+
 In other words, use ```smb-enum-shares``` to identify available shares, and ```smb-ls``` to see the contents inside them.
 #### 🧠 Why it's useful?
 - Helps you see real files in public shares.
@@ -137,6 +140,7 @@ nmap -p 445 --script smb-enum-domains <target-ip>
 ```
 #### 📌 Purpose:
 This script tries to list the Windows domains or workgroups the SMB server belongs to.
+
 Think of a domain as the "name of the Windows network" (like ```CORP```, ```DEMO.LOCAL```, or ```WORKGROUP```).
 #### 🧠 Why it's useful?
 - Helps you know what domain or workgroup the machine belongs to.
