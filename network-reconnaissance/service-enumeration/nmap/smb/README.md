@@ -29,7 +29,7 @@ nmap -p 445 --script smb-os-discovery <target-ip>
 ```bash
 nmap -p 445 --script smb-protocols <target-ip>
 ```
-📌 Purpose:
+#### 📌 Purpose:
 This script shows which SMB version the server supports:
 - SMBv1 → Old and not secure (can be hacked using attacks like EternalBlue)
 - SMBv2 / SMBv3 → Newer and more secure, but might still have weaknesses if not configured properly
