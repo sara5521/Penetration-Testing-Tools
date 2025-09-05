@@ -272,5 +272,5 @@ nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-s
 
 ---
 
-📖 [View on Nmap NSE Docs](https://nmap.org/nsedoc/scripts)
+📖 [View on NSE Scripts](https://nmap.org/nsedoc/scripts)
 
