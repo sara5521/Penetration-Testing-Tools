@@ -182,7 +182,7 @@ Think of services as background programs like:
 - Helps identify possible entry points or privilege escalation targets.
 - Example: If ```Remote Desktop``` is running, you might try RDP login later.
 
-## 🧾 What is ```--script-args``` in Nmap?
+## 🧾 11. Using ```--script-args``` in Nmap
 ```bash
 nmap -p 445 --script-args
 ```
