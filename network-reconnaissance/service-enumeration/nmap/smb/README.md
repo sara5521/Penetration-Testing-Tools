@@ -269,3 +269,8 @@ nmap -p 445 --script "smb-enum-*,smb-os-discovery,smb-security-mode,smb-server-s
   - `enum4linux`
   - `smbclient`
   - `crackmapexec`
+
+---
+
+📖 [View on Nmap NSE Docs](https://nmap.org/nsedoc/scripts)
+
