@@ -5,7 +5,7 @@ Each folder includes practical commands, usage examples, and tips for common too
 
 ---
 
-## 📁 Folder Structure
+### 📁 Folder Structure
 
 | Phase | Folder Name | Description |
 |-------|-------------|-------------|
@@ -19,7 +19,7 @@ Each folder includes practical commands, usage examples, and tips for common too
 
 ---
 
-## 🧭 Navigation Example
+### 🧭 Navigation Example
 
 Here's how to find tools based on your goal:
 
