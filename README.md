@@ -1,86 +1,74 @@
 # 🛠️ Penetration Testing Tools Collection
 
-This repository is a structured collection of penetration testing tools organized by phase and category.  
-Each folder includes practical commands, usage examples, and tips for common tools used in ethical hacking and CTFs.
+A structured collection of penetration testing tools organized by **phase** and **category**.
+
+Each folder contains practical commands, usage examples, and tips for tools commonly used in:
+
+- Ethical hacking labs
+- eJPT / OSCP certifications
+- CTFs like TryHackMe, Hack The Box
 
 ---
 
-## 🧭 Why This Repo?
+## 📁 Folder Structure
 
-- To help you study and practice tools used in eJPT, TryHackMe, Hack The Box, etc.
-- To keep all commands, notes, and cheat sheets organized in one place.
-- To build a personal knowledge base for real-world assessments and labs.
-
----
-
-## 📂 Folder Structure
-
-```
-Penetration-Testing-Tools/
-│
-├── network-reconnaissance/     # Basic network info, host discovery, port scanning
-│   ├── basics/
-│   ├── host-discovery/
-│   ├── port-scanning/
-│
-├── service-enumeration/        # Banner grabbing, SMB/FTP/HTTP enumeration, etc.
-│   ├── nmap/
-│   ├── smb/
-│   ├── ftp/
-│   └── http/
-│
-├── vulnerability-scanning/     # Tools to find known vulnerabilities
-│   ├── nikto/
-│   ├── nessus/
-│   └── nmap-vuln/
-│
-├── password-attacks/           # Brute force and password cracking tools
-│   ├── hydra/
-│   ├── medusa/
-│   └── john-the-ripper/
-│
-├── web-pentesting/             # Directory fuzzing, Burp Suite, Wfuzz, etc.
-│   ├── dirb-gobuster/
-│   ├── burpsuite/
-│   └── wfuzz/
-│
-├── post-exploitation/          # Tools used after gaining access (e.g., privilege escalation)
-│   ├── mimikatz/
-│   └── privilege-escalation/
-│
-├── misc/                       # Cheatsheets, methodology, extra notes
-│   ├── cheatsheets/
-│   └── methodology/
-```
+| Phase | Folder Name | Description |
+|-------|-------------|-------------|
+| 🔍 Reconnaissance | [`network-reconnaissance`](./network-reconnaissance) | Host discovery, port scanning, basic info gathering |
+| 📡 Service Enumeration | [`service-enumeration`](./service-enumeration) | Deep inspection of open services (e.g. SMB, FTP, HTTP) |
+| 🛡️ Vulnerability Scanning | [`vulnerability-scanning`](./vulnerability-scanning) | Detecting known vulnerabilities using tools like Nessus & Nmap |
+| 🔐 Password Attacks | [`password-attacks`](./password-attacks) | Brute-force & password cracking tools (Hydra, Medusa, John) |
+| 🧪 Web Application Pentesting | [`web-pentesting`](./web-pentesting) | Directory brute-forcing, web scanners, BurpSuite, etc. |
+| 🧬 Post Exploitation | [`post-exploitation`](./post-exploitation) | Actions after gaining access (hashdump, persistence) |
+| 🧩 Miscellaneous | [`misc`](./misc) | Other helpful tools, cheatsheets, and scripts |
 
 ---
 
-## 🔗 Tools Covered (Examples)
+## 🧭 Navigation Example
 
-- **Nmap** - scanning, scripts, enumeration
-- **Enum4linux** - SMB enumeration
-- **Hydra & Medusa** - brute-force
-- **Nikto** - web vuln scanner
-- **Burp Suite** - web app testing
-- **Wfuzz, Gobuster** - directory & parameter fuzzing
-- **John the Ripper** - password cracking
+Here's how to find tools based on your goal:
 
----
-
-## 👩‍💻 Author
-
-Created by `sara5521`  
-Cybersecurity student & eJPT candidate
+| Task | Go To Folder |
+|------|--------------|
+| Find live hosts | `network-reconnaissance/host-discovery/` |
+| Scan ports | `network-reconnaissance/port-scanning/` |
+| Enumerate SMB shares | `service-enumeration/smb/` |
+| Check for HTTP vulnerabilities | `service-enumeration/http/` |
+| Run Nikto | `web-pentesting/nikto.md` |
+| Brute-force FTP | `password-attacks/hydra.md` |
+| Crack password hashes | `password-attacks/john-the-ripper.md` |
+| Use Nessus | `vulnerability-scanning/nessus.md` |
 
 ---
 
-## ✅ Status
+## 🎯 Why This Repo?
 
-🟢 Actively updating this repo with INE labs, CTF notes, and tool cheatsheets.  
-📅 Goal: Complete before INE subscription ends.
+- ✅ Organize tools clearly by phase
+- 🧠 Build your own knowledge base
+- 💥 Fast reference during real-world labs or CTFs
+- 📚 Prepare for eJPT / OSCP / HTB / THM challenges
 
 ---
 
-## 📌 License
+## ✍️ Author
 
-MIT License — feel free to copy, fork, or use for learning.
+Created by [sara5521](https://github.com/sara5521)  
+📌 eJPT Candidate | Cybersecurity Student | CTF Player  
+
+---
+
+## 📌 Notes
+
+- Most tools include basic usage and tips
+- Output examples are gradually being added
+- Contributions, suggestions, and pull requests are welcome!
+
+---
+
+## 🧩 Related
+
+- [eJPT Learning Path](https://my.ine.com/)
+- [Hack The Box](https://www.hackthebox.com/)
+- [TryHackMe](https://tryhackme.com/)
+- [PayloadAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
+
