@@ -69,7 +69,7 @@ Penetration-Testing-Tools/
 
 ## 👩‍💻 Author
 
-Created with ❤️ by `sara5521`  
+Created by `sara5521`  
 Cybersecurity student & eJPT candidate
 
 ---
