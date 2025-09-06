@@ -1,12 +1,7 @@
 # 🛠️ Penetration Testing Tools Collection
 
-A structured collection of penetration testing tools organized by **phase** and **category**.
-
-Each folder contains practical commands, usage examples, and tips for tools commonly used in:
-
-- Ethical hacking labs
-- eJPT / OSCP certifications
-- CTFs like TryHackMe, Hack The Box
+This repository is a structured collection of penetration testing tools organized by phase and category.
+Each folder includes practical commands, usage examples, and tips for common tools used in ethical hacking and CTFs.
 
 ---
 
@@ -41,31 +36,29 @@ Here's how to find tools based on your goal:
 
 ---
 
-## 🎯 Why This Repo?
-
+### 🎯 Why This Repo?
 - ✅ Organize tools clearly by phase
 - 🧠 Build your own knowledge base
-- 💥 Fast reference during real-world labs or CTFs
+- 🚀 Fast reference during real-world labs or CTFs
 - 📚 Prepare for eJPT / OSCP / HTB / THM challenges
 
 ---
 
-## ✍️ Author
+### ✍️ Author
 
 Created by [sara5521](https://github.com/sara5521)  
-📌 eJPT Candidate | Cybersecurity Student | CTF Player  
+🎓 eJPT Candidate | Cybersecurity Student | CTF Player 
 
 ---
 
-## 📌 Notes
-
-- Most tools include basic usage and tips
-- Output examples are gradually being added
+### 📌 Notes
+- Most tools include basic usage and tips  
+- Output examples are gradually being added  
 - Contributions, suggestions, and pull requests are welcome!
-
+  
 ---
 
-## 🧩 Related
+### 🧩 Related
 
 - [eJPT Learning Path](https://my.ine.com/)
 - [Hack The Box](https://www.hackthebox.com/)
