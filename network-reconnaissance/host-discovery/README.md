@@ -47,6 +47,10 @@ ping -c 5 <target-ip or domain>
 ```
 📌 Sends 5 ICMP echo requests. If the host replies, it's considered alive.
 
+🧠 **Notes:**
+- Basic and quick.
+- Might not work if ICMP is blocked by firewall.
+  
 ---
 
 ### 🔹 2. Nmap Ping Scan
