@@ -112,7 +112,6 @@ masscan <target-ip> -p0-65535 --rate=1000
 - Use host discovery before port scanning to avoid scanning dead systems
 - Use `-Pn` in Nmap if ICMP is blocked (treats all hosts as up)
 - Combine multiple tools for better accuracy
-- Some hosts may block ICMP (ping), so use multiple methods.
 - Combine host discovery with port scanning in later steps.
 - Use tools like `masscan` for faster scanning in large networks.
 
