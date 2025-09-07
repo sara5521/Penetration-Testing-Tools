@@ -1,6 +1,28 @@
 # 🌐 Host Discovery - Live Host Scanning
 
-This section lists the most common tools and commands used to discover **live hosts** in a network — a critical first step in reconnaissance and penetration testing.
+This section focuses on discovering live hosts within a network, which is a critical first step before scanning for open ports or vulnerabilities.
+
+---
+
+## 📌 What is a Host?
+A **host** is any device connected to a network that can send or receive data.
+
+### Examples of hosts:
+- Computers
+- Servers
+- Mobile devices
+- Network printers
+- Routers
+
+In penetration testing, "host discovery" means identifying devices that are **active (up)** on the network.
+
+---
+
+## 🛠️ Purpose of Host Discovery
+Before starting a full scan, it's important to know which hosts are alive. This helps:
+- Focus scanning efforts on valid targets
+- Save time and resources
+- Avoid unnecessary network noise
 
 ---
 
@@ -50,3 +72,6 @@ masscan <target-ip> -p0-65535 --rate=1000
 - ICMP may be blocked — always try multiple methods.
 - For LAN (local network), arp-scan and netdiscover are most reliable.
 - Use nmap later for deeper port and service scans after finding live hosts.
+- Use host discovery before port scanning to avoid scanning dead systems
+- Use `-Pn` in Nmap if ICMP is blocked (treats all hosts as up)
+- Combine multiple tools for better accuracy
