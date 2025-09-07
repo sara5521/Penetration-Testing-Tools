@@ -57,7 +57,17 @@ ping -c 5 <target-ip or domain>
 ```bash
 nmap -sn <target-ip-range>
 ```
-📌 Performs a ping scan to discover which hosts are up (no port scan).
+📌 Discovers which hosts are up without scanning ports.
+
+🧠 **Notes:**
+- Uses ICMP, ARP, or TCP ACK/SYN depending on the target.
+- Good for scanning multiple IPs.
+
+✅ **When to use what:**
+| Command | Use Case |
+|--------|----------|
+| `ping -c 5 <ip>` | Quick check for single host |
+| `nmap -sn <range>` | Scan many IPs to find live ones |
 
 ---
 
@@ -85,12 +95,15 @@ sudo arp-scan -l
 ```bash
 netdiscover -r <target-ip>
 ```
+
 ---
 
 ### 🔹 6. Masscan (Caution!)
 ```bash
 masscan <target-ip> -p0-65535 --rate=1000
 ```
+
+---
 
 ## 🧠 Notes
 - ICMP may be blocked — always try multiple methods.
@@ -102,3 +115,12 @@ masscan <target-ip> -p0-65535 --rate=1000
 - Some hosts may block ICMP (ping), so use multiple methods.
 - Combine host discovery with port scanning in later steps.
 - Use tools like `masscan` for faster scanning in large networks.
+
+---
+
+## 📚 Related Tools
+- `netdiscover`
+- `masscan`
+- `fping`
+- `zmap`
+
