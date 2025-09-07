@@ -41,28 +41,48 @@ Before starting a full scan, it's important to know which hosts are alive. This 
 
 ## 🧪 Example Commands
 
-### 🔹 1. Ping (Basic)
+### 🔹 1. ICMP Echo (Ping)
 ```bash
-ping <target-ip>
+ping -c 5 <target-ip or domain>
 ```
-### 🔹 2. fping (Range Ping)
+📌 Sends 5 ICMP echo requests. If the host replies, it's considered alive.
+
+---
+
+### 🔹 2. Nmap Ping Scan
 ```bash
-fping -a -g <target-ip>
+nmap -sn <target-ip-range>
 ```
-- -a: Show only a live hosts
-- -g: IP range
-### 🔹 3. Nmap Ping Scan
+📌 Performs a ping scan to discover which hosts are up (no port scan).
+
+---
+
+### 🔹 3. Basic Nmap Scan
 ```bash
-nmap -sn <target-ip>
+nmap <target-ip or domain>
 ```
-### 🔹 4. ARP Scan (Local Network)
+📌 Default scan. It performs:
+- Host discovery
+- Port scanning
+- Service detection
+If the host is up, it will show open ports and detected services.
+
+---
+
+### 🔹 4. ARP Scan (Local Network Only)
 ```bash
-arp-scan <target-ip>
+sudo arp-scan -l
 ```
+📌 Scans your local network using ARP requests. Very effective inside LANs.
+
+---
+
 ### 🔹 5. Netdiscover (Interactive)
 ```bash
 netdiscover -r <target-ip>
 ```
+---
+
 ### 🔹 6. Masscan (Caution!)
 ```bash
 masscan <target-ip> -p0-65535 --rate=1000
@@ -75,3 +95,6 @@ masscan <target-ip> -p0-65535 --rate=1000
 - Use host discovery before port scanning to avoid scanning dead systems
 - Use `-Pn` in Nmap if ICMP is blocked (treats all hosts as up)
 - Combine multiple tools for better accuracy
+- Some hosts may block ICMP (ping), so use multiple methods.
+- Combine host discovery with port scanning in later steps.
+- Use tools like `masscan` for faster scanning in large networks.
