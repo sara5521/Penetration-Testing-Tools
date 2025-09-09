@@ -95,7 +95,12 @@ This script checks how secure the SMB server is by showing:
 ```bash
 nmap -p 445 --script smb-enum-domains <target-ip>
 ```
-#### 📸 Sample Output:
+
+#### EEExample:
+``` bash
+nmap -p445 --script smb-enum-domains --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+📸 Sample Output:
 ```bash
 Host script results:
 | smb-enum-domains: 
