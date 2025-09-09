@@ -115,7 +115,7 @@ Host script results:
 ```
 
 #### Interpretation:
-- 💻 Domain name: WIN-OMCNBKR66MN
+- 💻 Domain name: ```WIN-OMCNBKR66MN```
 - 👥 Users: Administrator, bob, Guest
 - 👮‍♂️ Groups: WinRMRemoteWMIUsers__
 - ⏱️ Password Policy:
