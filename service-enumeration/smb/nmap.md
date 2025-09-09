@@ -66,10 +66,12 @@ nmap -p 445 --script smb-security-mode <target-ip>
 ```
 #### 📸 Sample Output:
 ```bash
-account_used: guest
-authentication_level: user
-challenge_response: supported
-message_signing: disabled (dangerous, but default)
+Host script results:
+| smb-security-mode:
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
 ```
 
 #### Interpretation:
@@ -93,6 +95,36 @@ This script checks how secure the SMB server is by showing:
 ```bash
 nmap -p 445 --script smb-enum-domains <target-ip>
 ```
+#### 📸 Sample Output:
+```bash
+Host script results:
+| smb-enum-domains: 
+|   WIN-OMCNBKR66MN
+|     Groups: WinRMRemoteWMIUsers__
+|     Users: Administrator, bob, Guest
+|     Creation time: 2013-08-22T14:47:57
+|     Passwords: min length: n/a; min age: n/a days; max age: 42 days; history: n/a passwords
+|     Properties: Complexity requirements exist
+|     Account lockout disabled
+|   Builtin
+|     Groups: Access Control Assistance Operators, Administrators, Backup Operators, Certificate Service DCOM Access, Cryptographic Operators, Distributed COM Users, Event Log Readers, Guests, Hyper-V Administrators, IIS_IUSRS, Network Configuration Operators, Performance Log Users, Performance Monitor Users, Power Users, Print Operators, RDS Endpoint Servers, RDS Management Servers, RDS Remote Access Servers, Remote Desktop Users, Remote Management Users, Replicator, Users
+|     Users: n/a
+|     Creation time: 2013-08-22T14:47:57
+|     Passwords: min length: n/a; min age: n/a days; max age: 42 days; history: n/a passwords
+
+```
+
+#### Interpretation:
+- 💻 Domain name: WIN-OMCNBKR66MN
+- 👥 Users: Administrator, bob, Guest
+- 👮‍♂️ Groups: WinRMRemoteWMIUsers__
+- ⏱️ Password Policy:
+  - Max age = 42 days
+  - Complexity = Enabled
+  - Lockout = Disabled
+- 🧱 Builtin Groups: Show default permission roles like Admins, Guests, RDP users, etc.
+- 🕓 Domain created: 2013-08-22
+
 #### 📌 Purpose:
 This script tries to list the Windows domains or workgroups the SMB server belongs to.
 
