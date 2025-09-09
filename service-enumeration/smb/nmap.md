@@ -357,17 +357,44 @@ Host script results:
 nmap -p 445 --script smb-enum-shares <target-ip>
 ```
 **📌 Purpose:**
-This script lists all shared folders (also called shares) on a Windows machine over SMB.
+The `smb-enum-shares` script helps you discover shared folders on a target system, showing which ones are accessible and whether they are hidden or writable.
 
-It tells you:
-- Which folders are being shared
-- Whether they are readable or writable
-- If they're administrative or public shares
+**🧠 Why Is This Useful?**
+- ✅ Discover accessible and hidden shares
+- 🔍 Reveal sensitive or misconfigured folders
+- ✍️ Identify writable locations to upload payloads
+- 🔐 Great for post-exploitation, data gathering, or privilege escalation
 
-**🧠 Why is this useful?**
-- Helps you find files or folders that are publicly accessible
-- Great for finding sensitive data like `flag.txt`, `backup.zip`, or `config.bak`.
-- If a share is writable, you might be able to upload malicious files.
+**INE Lab Example:**
+```bash
+nmap -p445 --script smb-enum-shares --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+**📸 Sample Output:**
+```bash
+Host script results:
+| smb-enum-shares:
+|   account_used: administrator
+|   \\10.6.18.229\ADMIN$       → Hidden admin share (C:\Windows) [READ/WRITE]
+|   \\10.6.18.229\C            → Root of C:\ drive [READ]
+|   \\10.6.18.229\C$           → Hidden admin share (C:\) [READ/WRITE]
+|   \\10.6.18.229\D$           → Hidden admin share (D:\) [READ/WRITE]
+|   \\10.6.18.229\Documents    → Admin Documents folder [READ]
+|   \\10.6.18.229\Downloads    → Admin Downloads folder [READ]
+|   \\10.6.18.229\IPC$         → Inter-process communication share [READ/WRITE]
+|_  \\10.6.18.229\print$       → Printer drivers share [READ/WRITE]
+
+```
+**Interpretation:**
+
+| Share Name        | Description                                        | Access       |
+|-------------------|----------------------------------------------------|--------------|
+| `ADMIN$`          | Hidden remote admin share → points to `C:\Windows` | Read/Write   |
+| `C$` / `D$`       | Hidden root shares for drives                      | Read/Write   |
+| `C:`              | Normal (non-hidden) root share                     | Read         |
+| `Documents`       | Admin’s `Documents` folder                         | Read         |
+| `Downloads`       | Admin’s `Downloads` folder                         | Read         |
+| `IPC$`            | Used for remote management and communication       | Read/Write   |
+| `print$`          | Shared printer driver folder                       | Read/Write   |
 
 ### List files inside the shares:
 ```bash
