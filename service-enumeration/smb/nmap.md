@@ -382,7 +382,6 @@ Host script results:
 |   \\10.6.18.229\Downloads    → Admin Downloads folder [READ]
 |   \\10.6.18.229\IPC$         → Inter-process communication share [READ/WRITE]
 |_  \\10.6.18.229\print$       → Printer drivers share [READ/WRITE]
-
 ```
 **Interpretation:**
 
@@ -473,11 +472,32 @@ This script gets real-time stats from the SMB server, like:
 - Server uptime (if available)
 
 **🧠 Why is this useful?**
-- Shows if the server is busy or being used by other people.
-- Helps you find out:
-  - If an admin or another hacker is connected 👀
-  - How long the server has been running
-- Can reveal useful behavior or targets for privilege escalation
+This script helps monitor real-time usage of the SMB server. Useful for:
+- 🔍 Spotting user or attacker activity (file access, logins)
+- 🧪 Checking if the server is actively being used
+- 📈 Monitoring for anomalies (like excessive failed logins or open files)
+
+**INE Lab Example:**
+```bash
+nmap -p445 --script smb-server-stats --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+**📸 Sample Output:**
+```bash
+Host script results:
+| smb-server-stats: 
+|   Server statistics collected since 2025-09-09T13:33:45 (4m19s):
+|     2250 bytes (8.69 b/s) sent, 2141 bytes (8.27 b/s) received
+|_    0 failed logins, 0 permission errors, 0 system errors, 0 print jobs, 2 files opened
+```
+**Interpretation:**
+- 🕓 **Uptime Info**: Stats collected since `2025-09-09T13:33:45`, running for `4 minutes and 19 seconds`.
+- 📤 **Data Sent**: 2250 bytes (~8.69 bytes/sec)
+- 📥 **Data Received**: 2141 bytes (~8.27 bytes/sec)
+- ❌ **Failed Logins**: 0 → No login errors occurred.
+- 🚫 **Permission Errors**: 0 → No unauthorized access attempts.
+- ⚙️ **System Errors**: 0 → No critical system-level errors.
+- 🖨️ **Print Jobs**: 0 → No activity related to print services.
+- 📁 **Files Opened**: 2 → Two files are currently open.
 
 ---
 
