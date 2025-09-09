@@ -219,7 +219,7 @@ Host script results:
 - Other groups like `Backup Operators`, `IIS_IUSRS`, etc., are empty → you can ignore them unless you find users assigned to them later.
 
 💡 TIP: This group membership information is useful for:
-- 'Privilege escalation' — targeting users with high privileges.
+- "Privilege escalation" — targeting users with high privileges.
 - Lateral movement — if RDP or other remote services are enabled.
 - Brute-force attacks — focus on privileged accounts like ```bob```.
 
