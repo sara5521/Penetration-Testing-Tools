@@ -252,6 +252,12 @@ Host script results:
 |   Active SMB sessions
 |_    ADMINISTRATOR is connected from \\10.10.45.4 for [just logged in, it's probably you], idle for [not idle]
 ```
+#### Interpretation:
+- 👤 bob is currently logged into the system.
+- ⏱️ His session has been active since 09:43:25.
+- 🧑‍💼 The Administrator account is also logged in — likely you.
+- 🖥️ That session came from IP 10.10.45.4.
+- 🔄 It is currently active, not idle.
 
 #### 📌 Purpose:
 This script tries to list current SMB sessions — in other words, it shows:
