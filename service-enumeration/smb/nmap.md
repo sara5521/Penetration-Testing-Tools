@@ -20,20 +20,20 @@ These scripts help you gather important information from the SMB service, such a
 
 ## 🗂️ SMB Enumeration Scripts Summary
 
-|   | Script                  | What it Does                             |
-|---|-------------------------|-------------------------------------------|
+|   | Script                 | What it Does                             |
+|---|------------------------|------------------------------------------|
 | 1 | smb-os-discovery       | Detect OS and hostname                   |
-| 2️ | smb-protocols          | Show SMB versions supported              |
-| 3️ | smb-security-mode      | Check SMB signing and auth level         |
-| 4️ | smb-enum-domains       | List domain/workgroup info               |
-| 5️ | smb-enum-users         | List user accounts                       |
-| 6️ | smb-enum-groups        | List Windows groups                      |
-| 7️ | smb-enum-sessions      | List active SMB sessions                 |
-| 8️ | smb-enum-services      | List running services                    |
-| 9️ | smb-enum-shares        | List shared folders                      |
+| 2 | smb-protocols          | Show SMB versions supported              |
+| 3 | smb-security-mode      | Check SMB signing and auth level         |
+| 4 | smb-enum-domains       | List domain/workgroup info               |
+| 5 | smb-enum-users         | List user accounts                       |
+| 6 | smb-enum-groups        | List Windows groups                      |
+| 7 | smb-enum-sessions      | List active SMB sessions                 |
+| 8 | smb-enum-services      | List running services                    |
+| 9 | smb-enum-shares        | List shared folders                      |
 | 10 | smb-ls                | List files inside shares                 |
 | 11 | smb-server-stats      | Show stats like open files/sessions      |
-| 1️2️ | --script-args         | Customize script input (username, etc.)  |
+| 12 | --script-args         | Customize script input (username, etc.)  |
 
 ---
 
@@ -49,12 +49,12 @@ nmap -p 445 --script smb-os-discovery <target-ip>
 ```bash
 nmap -p 445 --script smb-protocols <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script shows which SMB version the server supports:
 - SMBv1 → Old and not secure ⚠️
 - SMBv2 / SMBv3 → Newer and more secure ✅
 
-#### 🧠 Why is this useful?
+**🧠 Why is this useful?**
 - If the server supports SMBv1, it's risky and may be vulnerable to attacks like EternalBlue.
 - Tells you whether modern, secure protocols (SMBv3) are supported.
 - Important for deciding what kind of attack or enumeration you can try.
@@ -65,21 +65,21 @@ This script shows which SMB version the server supports:
 ```bash
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script checks how secure the SMB server is by showing:
 - If SMB signing is supported
 - If SMB signing is required
 - What type of authentication is used (user or share level)
 
-#### 🧠 Why is this useful?
+**🧠 Why is this useful?**
 - If signing is not required, the server might be vulnerable to spoofing or MiTM (man-in-the-middle) attacks.
 - Helps you understand how the target is protected.
 
-#### INE Lab Example:
+**INE Lab Example:**
 ``` bash
 nmap -p445 --script smb-security-mode demo.ine.local
 ```
-📸 Sample Output:
+**📸 Sample Output:**
 ```bash
 Host script results:
 | smb-security-mode:
@@ -88,7 +88,7 @@ Host script results:
 |   challenge_response: supported
 |_  message_signing: disabled (dangerous, but default)
 ```
-#### Interpretation:
+**Interpretation:**
 - 🔑 Account Used: Guest (anonymous)
 - 🛡️ Auth Level: User-level (safer than share-level)
 - 🔁 Challenge/Response: Supported (adds some protection)
@@ -100,11 +100,12 @@ Host script results:
 ```bash
 nmap -p 445 --script smb-enum-domains <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script tries to list the Windows domains or workgroups the SMB server belongs to.
 
 Think of a domain as the "name of the Windows network" (like `CORP`, `DEMO.LOCAL`, or `WORKGROUP`).
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - Helps you know what domain or workgroup the machine belongs to.
 - Useful for:
   - Active Directory attacks
@@ -112,11 +113,11 @@ Think of a domain as the "name of the Windows network" (like `CORP`, `DEMO.LOCAL
   - Mapping the Windows network
 - Sometimes reveals the domain SID (Security Identifier)
 
-#### INE Lab Example:
+**INE Lab Example:**
 ``` bash
 nmap -p445 --script smb-enum-domains --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
-📸 Sample Output:
+**📸 Sample Output:**
 ```bash
 Host script results:
 | smb-enum-domains: 
@@ -134,7 +135,7 @@ Host script results:
 |_    Passwords: min length: n/a; min age: n/a days; max age: 42 days; history: n/a passwords
 ```
 
-#### Interpretation:
+**Interpretation:**
 - 💻 Domain name: `WIN-OMCNBKR66MN`
 - 👥 Users: Administrator, bob, Guest
 - 👮‍♂️ Groups: WinRMRemoteWMIUsers__
@@ -151,9 +152,10 @@ Host script results:
 ```bash
 nmap -p 445 --script smb-enum-users <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script tries to list user accounts on a Windows machine by querying the SMB service.
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - It gives you a list of usernames that exist on the system.
 - You can use these names for:
   - Brute-force attacks (e.g. with Hydra)
@@ -161,7 +163,7 @@ This script tries to list user accounts on a Windows machine by querying the SMB
   - Understanding roles and access levels
 - Sometimes even works with anonymous access
 
-#### INE Lab Example:
+**INE Lab Example:**
 ``` bash
 nmap -p445 --script smb-enum-users --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
@@ -178,7 +180,7 @@ Host script results:
 |     Description: Built-in account for guest access to the computer/domain
 |_    Flags:       Normal user account, Password not required, Password does not expire
 ```
-#### Interpretation:
+**Interpretation:**
 - 🔐 Administrator is the default admin account — useful for brute-force attacks.
 - 👨‍💻 bob is likely a regular user account added by an admin — try brute-forcing it.
 - 🧳 Guest has:
@@ -195,9 +197,10 @@ Host script results:
 ```bash
 nmap -p 445 --script smb-enum-groups <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script tries to list the Windows groups on the target — groups are like "roles" or "permission levels" for users.
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - Helps you understand user roles and privileges.
 - Can reveal if there’s a “Remote Desktop Users” group (target for RDP access).
 - Useful for:
@@ -221,7 +224,7 @@ Host script results:
 |   ...
 |_  WIN-OMCNBKR66MN\WinRMRemoteWMIUsers__ (RID: 1000): <empty>
 ```
-#### Interpretation:
+**Interpretation:**
 - `Administrator` and `bob` are members of the Administrators group → they have full system privileges.
 - `bob` is also part of the Remote Desktop Users group → this means he may log in via RDP (Remote Desktop Protocol), which can be a target for brute-force attacks.
 - `Guest` is in the Guests group → usually has limited permissions and is less useful for privilege escalation.
@@ -238,19 +241,20 @@ Host script results:
 ```bash
 nmap -p 445 --script smb-enum-sessions <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script tries to list current SMB sessions — in other words, it shows:
 - Who is currently connected to the SMB server
 - What users or machines are active
 - How many open sessions exist
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - Shows real-time activity on the target.
 - Helps identify:
   - Logged-in users
   - IPs of other attackers or admins
   - If the system is actively being used
 
-#### INE Lab Example:
+**INE Lab Example:**
 ``` bash
 nmap -p445 --script smb-enum-sessions --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
@@ -263,7 +267,7 @@ Host script results:
 |   Active SMB sessions
 |_    ADMINISTRATOR is connected from \\10.10.45.4 for [just logged in, it's probably you], idle for [not idle]
 ```
-#### Interpretation:
+**Interpretation:**
 - 👤 bob is currently logged into the system.
 - ⏱️ His session has been active since 09:43:25.
 - 🧑‍💼 The Administrator account is also logged in — likely you.
@@ -276,7 +280,7 @@ Host script results:
 ```bash
 nmap -p 445 --script smb-enum-services <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script tries to list the Windows services that are running on the target through SMB.
 
 Think of services as background programs like:
@@ -285,7 +289,8 @@ Think of services as background programs like:
 - Print Spooler
 - Antivirus
 - etc.
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - Shows which services are running or stopped.
 - Helps identify possible entry points or privilege escalation targets.
 - Example: If `Remote Desktop` is running, you might try RDP login later.
@@ -298,14 +303,15 @@ Think of services as background programs like:
 ```bash
 nmap -p 445 --script smb-enum-shares <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script lists all shared folders (also called shares) on a Windows machine over SMB.
 
 It tells you:
 - Which folders are being shared
 - Whether they are readable or writable
 - If they're administrative or public shares
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - Helps you find files or folders that are publicly accessible
 - Great for finding sensitive data like `flag.txt`, `backup.zip`, or `config.bak`.
 - If a share is writable, you might be able to upload malicious files.
@@ -314,13 +320,14 @@ It tells you:
 ```bash
 nmap -p 445 --script smb-ls <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script tries to list the actual files and folders inside each shared folder (share) found on the SMB server.
 
 So after you discover shares with `smb-enum-shares`, you can use `smb-ls` to look inside them.
 
 In other words, use `smb-enum-shares` to identify available shares, and `smb-ls` to see the contents inside them.
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - Helps you see real files in public shares.
 - You may find:
   - `flag.txt`
@@ -334,13 +341,14 @@ In other words, use `smb-enum-shares` to identify available shares, and `smb-ls`
 ```bash
 nmap -p 445 --script smb-server-stats <target-ip>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 This script gets real-time stats from the SMB server, like:
 - How many files are open
 - How many users are connected
 - How many active SMB sessions
 - Server uptime (if available)
-#### 🧠 Why is this useful?
+
+**🧠 Why is this useful?**
 - Shows if the server is busy or being used by other people.
 - Helps you find out:
   - If an admin or another hacker is connected 👀
@@ -353,23 +361,23 @@ This script gets real-time stats from the SMB server, like:
 ```bash
 nmap -p 445 --script <script-name> --script-args <key>=<value>
 ```
-#### 📌 Purpose:
+**📌 Purpose:**
 `--script-args` lets you customize the behavior of NSE scripts in Nmap by providing extra input (like usernames, passwords, timeouts, etc.).
 
 It’s like giving the script extra instructions.
 
 ### 🧪 Examples with SMB:
-#### 🔐 Example 1: Login with username and password
+**🔐 Example 1:** Login with username and password
 ```bash
 nmap -p 445 --script smb-enum-users --script-args smbuser=admin,smbpass=123456 <target-ip>
 ```
 
-#### 🕵️‍♀️ Example 2: Specify domain
+**🕵️‍♀️ Example 2:** Specify domain
 ```bash
 nmap -p 445 --script smb-enum-shares --script-args smbuser=user1,smbpass=pass123,domain=WORKGROUP <target-ip>
 ```
 
-#### 🔄 Example 3: Set script timeout
+**🔄 Example 3:** Set script timeout
 ```bash
 nmap -p 445 --script smb-enum-sessions --script-args timeout=20s <target-ip>
 ```
