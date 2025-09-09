@@ -64,7 +64,7 @@ This script shows which SMB version the server supports:
 ```bash
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
-#### Example:
+#### INE Lab Example:
 ``` bash
 nmap -p445 --script smb-security-mode demo.ine.local
 ```
@@ -100,7 +100,7 @@ This script checks how secure the SMB server is by showing:
 nmap -p 445 --script smb-enum-domains <target-ip>
 ```
 
-#### Example:
+#### INE Lab Example:
 ``` bash
 nmap -p445 --script smb-enum-domains --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
@@ -152,6 +152,36 @@ Think of a domain as the "name of the Windows network" (like `CORP`, `DEMO.LOCAL
 ```bash
 nmap -p 445 --script smb-enum-users <target-ip>
 ```
+#### INE Lab Example:
+``` bash
+nmap -p445 --script smb-enum-users --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+📸 Sample Output:
+```bash
+Host script results:
+| smb-enum-users: 
+|   WIN-OMCNBKR66MN\Administrator (RID: 500)
+|     Description: Built-in account for administering the computer/domain
+|     Flags:       Normal user account, Password does not expire
+|   WIN-OMCNBKR66MN\bob (RID: 1010)
+|     Flags:       Normal user account, Password does not expire
+|   WIN-OMCNBKR66MN\Guest (RID: 501)
+|     Description: Built-in account for guest access to the computer/domain
+|_    Flags:       Normal user account, Password not required, Password does not expire
+
+```
+
+#### Interpretation:
+- 🔐 Administrator is the default admin account — useful for brute-force attacks.
+- 👨‍💻 bob is likely a regular user account added by an admin — try brute-forcing it.
+- 🧳 Guest has:
+  - No password required ❗
+  - Useful for anonymous logins and privilege escalation
+- 🔢 RIDs (Relative IDs):
+  - 500 = Administrator
+  - 501 = Guest
+  - 1000 = Custom user accounts
+
 #### 📌 Purpose:
 This script tries to list user accounts on a Windows machine by querying the SMB service.
 #### 🧠 Why is this useful?
