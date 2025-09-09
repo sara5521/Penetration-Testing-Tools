@@ -65,10 +65,12 @@ This script shows which SMB version the server supports:
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
 #### 📸 Sample Output:
+```bash
 account_used: guest
 authentication_level: user
 challenge_response: supported
 message_signing: disabled (dangerous, but default)
+```
 
 #### 🧠 Interpretation:
 - 🔑 Account Used: Guest (anonymous)
