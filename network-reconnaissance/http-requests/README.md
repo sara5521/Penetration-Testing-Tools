@@ -123,16 +123,6 @@ Host: demo.ine.local
 
 ---
 
-## 📁 Recommended GitHub Structure
-
-```
-network-reconnaissance/
-└── http-requests/
-    └── README.md
-```
-
----
-
 ## 📚 Related Tools
 
 * `Burp Suite`: Advanced GUI tool for testing and intercepting HTTP traffic
