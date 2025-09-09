@@ -295,6 +295,52 @@ Think of services as background programs like:
 - Helps identify possible entry points or privilege escalation targets.
 - Example: If `Remote Desktop` is running, you might try RDP login later.
 
+**INE Lab Example:**
+```bash
+nmap -p445 --script smb-enum-services --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+**📸 Sample Output:**
+Host script results:
+| smb-enum-services:
+|   AmazonSSMAgent:
+|     display_name: Amazon SSM Agent
+|     state:
+|       SERVICE_RUNNING
+|     ...
+|   Spooler:
+|     display_name: Print Spooler
+|     state:
+|       SERVICE_RUNNING
+|   TrustedInstaller:
+|     display_name: Windows Modules Installer
+|     state:
+|       SERVICE_RUNNING
+|   DiagTrack:
+|     display_name: Diagnostics Tracking Service
+|     state:
+|       SERVICE_RUNNING
+|   Ec2Config:
+|     display_name: Ec2Config
+|     state:
+|       SERVICE_RUNNING
+|   sppsvc:
+|     display_name: Software Protection
+|     state:
+|       SERVICE_RUNNING
+|   vds:
+|     display_name: Virtual Disk
+|     state:
+|_      SERVICE_RUNNING
+
+**Interpretation:**
+- ✅ The script successfully lists Windows Services that are actively running or paused.
+- Notable running services:
+  - AmazonSSMAgent → Indicates this might be a cloud-hosted VM (e.g., AWS EC2).
+  - Ec2Config → Confirms it's an AWS instance.
+  - Print Spooler (Spooler) → Frequently targeted for privilege escalation.
+  - TrustedInstaller, Software Protection (sppsvc) → Core Windows services.
+- SERVICE_RUNNING shows the service is active. You may be able to abuse some of them.
+
 ---
 
 ## 📂 9. Enumerate and Browse SMB Shares
