@@ -72,7 +72,7 @@ challenge_response: supported
 message_signing: disabled (dangerous, but default)
 ```
 
-#### 🧠 Interpretation:
+#### Interpretation:
 - 🔑 Account Used: Guest (anonymous)
 - 🛡️ Auth Level: User-level (safer than share-level)
 - 🔁 Challenge/Response: Supported (adds some protection)
