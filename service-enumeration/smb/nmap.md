@@ -239,6 +239,20 @@ This script tries to list the Windows groups on the target — groups are like "
 ```bash
 nmap -p 445 --script smb-enum-sessions <target-ip>
 ```
+#### INE Lab Example:
+``` bash
+nmap -p445 --script smb-enum-sessions --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+📸 Sample Output:
+``` bash
+Host script results:
+| smb-enum-sessions: 
+|   Users logged in
+|     WIN-OMCNBKR66MN\bob since 2025-09-09T09:43:25
+|   Active SMB sessions
+|_    ADMINISTRATOR is connected from \\10.10.45.4 for [just logged in, it's probably you], idle for [not idle]
+```
+
 #### 📌 Purpose:
 This script tries to list current SMB sessions — in other words, it shows:
 - Who is currently connected to the SMB server
