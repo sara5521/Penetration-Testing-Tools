@@ -75,7 +75,7 @@ Host script results:
 |   account_used: guest
 |   authentication_level: user
 |   challenge_response: supported
-|   message_signing: disabled (dangerous, but default)
+|_  message_signing: disabled (dangerous, but default)
 ```
 
 #### Interpretation:
@@ -119,8 +119,7 @@ Host script results:
 |     Groups: Access Control Assistance Operators, Administrators, Backup Operators, Certificate Service DCOM Access, Cryptographic Operators, Distributed COM Users, Event Log Readers, Guests, Hyper-V Administrators, IIS_IUSRS, Network Configuration Operators, Performance Log Users, Performance Monitor Users, Power Users, Print Operators, RDS Endpoint Servers, RDS Management Servers, RDS Remote Access Servers, Remote Desktop Users, Remote Management Users, Replicator, Users
 |     Users: n/a
 |     Creation time: 2013-08-22T14:47:57
-|     Passwords: min length: n/a; min age: n/a days; max age: 42 days; history: n/a passwords
-
+|_    Passwords: min length: n/a; min age: n/a days; max age: 42 days; history: n/a passwords
 ```
 
 #### Interpretation:
@@ -168,7 +167,6 @@ Host script results:
 |   WIN-OMCNBKR66MN\Guest (RID: 501)
 |     Description: Built-in account for guest access to the computer/domain
 |_    Flags:       Normal user account, Password not required, Password does not expire
-
 ```
 
 #### Interpretation:
@@ -198,6 +196,33 @@ This script tries to list user accounts on a Windows machine by querying the SMB
 ```bash
 nmap -p 445 --script smb-enum-groups <target-ip>
 ```
+#### INE Lab Example:
+``` bash
+nmap -p445 --script smb-enum-groups --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+📸 Sample Output:
+``` bash
+Host script results:
+| smb-enum-groups: 
+|   Builtin\Administrators (RID: 544): Administrator, bob
+|   Builtin\Users (RID: 545): bob
+|   Builtin\Guests (RID: 546): Guest
+|   Builtin\Remote Desktop Users (RID: 555): bob
+|   Builtin\Backup Operators (RID: 551): <empty>
+|   ...
+|_  WIN-OMCNBKR66MN\WinRMRemoteWMIUsers__ (RID: 1000): <empty>
+```
+#### Interpretation:
+- ```Administrator``` and ```bob``` are members of the Administrators group → they have full system privileges.
+- ```bob``` is also part of the Remote Desktop Users group → this means he may log in via RDP (Remote Desktop Protocol), which can be a target for brute-force attacks.
+- ```Guest``` is in the Guests group → usually has limited permissions and is less useful for privilege escalation.
+- Other groups like ```Backup Operators```, ```IIS_IUSRS```, etc., are empty → you can ignore them unless you find users assigned to them later.
+
+💡 TIP: This group membership information is useful for:
+- `Privilege escalation` — targeting users with high privileges.
+- Lateral movement — if RDP or other remote services are enabled.
+- Brute-force attacks — focus on privileged accounts like ```bob```.
+
 #### 📌 Purpose:
 This script tries to list the Windows groups on the target — groups are like "roles" or "permission levels" for users.
 #### 🧠 Why is this useful?
