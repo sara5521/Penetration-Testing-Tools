@@ -64,6 +64,18 @@ This script shows which SMB version the server supports:
 ```bash
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
+#### 📸 Sample Output:
+account_used: guest
+authentication_level: user
+challenge_response: supported
+message_signing: disabled (dangerous, but default)
+
+#### 🧠 Interpretation:
+- 🔑 Account Used: Guest (anonymous)
+- 🛡️ Auth Level: User-level (safer than share-level)
+- 🔁 Challenge/Response: Supported (adds some protection)
+- ⚠️ Message Signing: Disabled (vulnerable to MITM attacks)
+  
 #### 📌 Purpose:
 This script checks how secure the SMB server is by showing:
 - If SMB signing is supported
