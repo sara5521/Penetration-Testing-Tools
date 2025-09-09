@@ -76,7 +76,7 @@ This script checks how secure the SMB server is by showing:
 - Helps you understand how the target is protected.
 
 **INE Lab Example:**
-``` bash
+```bash
 nmap -p445 --script smb-security-mode demo.ine.local
 ```
 **📸 Sample Output:**
@@ -114,7 +114,7 @@ Think of a domain as the "name of the Windows network" (like `CORP`, `DEMO.LOCAL
 - Sometimes reveals the domain SID (Security Identifier)
 
 **INE Lab Example:**
-``` bash
+```bash
 nmap -p445 --script smb-enum-domains --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
 **📸 Sample Output:**
@@ -164,7 +164,7 @@ This script tries to list user accounts on a Windows machine by querying the SMB
 - Sometimes even works with anonymous access
 
 **INE Lab Example:**
-``` bash
+```bash
 nmap -p445 --script smb-enum-users --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
 📸 Sample Output:
@@ -209,11 +209,11 @@ This script tries to list the Windows groups on the target — groups are like "
   - Mapping group memberships in Active Directory
 
 #### INE Lab Example:
-``` bash
+```bash
 nmap -p445 --script smb-enum-groups --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
 📸 Sample Output:
-``` bash
+```bash
 Host script results:
 | smb-enum-groups: 
 |   Builtin\Administrators (RID: 544): Administrator, bob
@@ -255,11 +255,11 @@ This script tries to list current SMB sessions — in other words, it shows:
   - If the system is actively being used
 
 **INE Lab Example:**
-``` bash
+```bash
 nmap -p445 --script smb-enum-sessions --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
 📸 Sample Output:
-``` bash
+```bash
 Host script results:
 | smb-enum-sessions: 
 |   Users logged in
@@ -305,6 +305,7 @@ Think of services as background programs like:
 nmap -p445 --script smb-enum-services --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
 **📸 Sample Output:**
+```bash
 Host script results:
 | smb-enum-services:
 |   AmazonSSMAgent:
@@ -336,6 +337,7 @@ Host script results:
 |     display_name: Virtual Disk
 |     state:
 |_      SERVICE_RUNNING
+```
 
 **Interpretation:**
 - ✅ The script successfully lists Windows Services that are actively running or paused.
