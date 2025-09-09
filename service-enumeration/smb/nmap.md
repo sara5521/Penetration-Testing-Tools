@@ -288,12 +288,17 @@ Think of services as background programs like:
 - Windows Update
 - Print Spooler
 - Antivirus
-- etc.
+- Cloud Agent (e.g. SSM, EC2Config)
 
 **🧠 Why is this useful?**
-- Shows which services are running or stopped.
-- Helps identify possible entry points or privilege escalation targets.
-- Example: If `Remote Desktop` is running, you might try RDP login later.
+- Shows which services are:
+  - Running
+  - Paused
+  - Accepting commands (e.g., stop, restart)
+- Helps identify:
+  - Possible privilege escalation paths
+  - Cloud provider usage (e.g., AWS, Azure)
+  - Entry points for exploitation (e.g., Print Spooler)
 
 **INE Lab Example:**
 ```bash
