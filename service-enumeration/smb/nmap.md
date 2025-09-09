@@ -71,7 +71,7 @@ Host script results:
 |   account_used: guest
 |   authentication_level: user
 |   challenge_response: supported
-|_  message_signing: disabled (dangerous, but default)
+|   message_signing: disabled (dangerous, but default)
 ```
 
 #### Interpretation:
