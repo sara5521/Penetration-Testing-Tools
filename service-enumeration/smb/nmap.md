@@ -64,7 +64,11 @@ This script shows which SMB version the server supports:
 ```bash
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
-#### 📸 Sample Output:
+#### Example:
+``` bash
+nmap -p445 --script smb-security-mode demo.ine.local
+```
+📸 Sample Output:
 ```bash
 Host script results:
 | smb-security-mode:
@@ -96,7 +100,7 @@ This script checks how secure the SMB server is by showing:
 nmap -p 445 --script smb-enum-domains <target-ip>
 ```
 
-#### EEExample:
+#### Example:
 ``` bash
 nmap -p445 --script smb-enum-domains --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
 ```
