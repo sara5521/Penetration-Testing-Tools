@@ -401,19 +401,63 @@ Host script results:
 nmap -p 445 --script smb-ls <target-ip>
 ```
 **📌 Purpose:**
-This script tries to list the actual files and folders inside each shared folder (share) found on the SMB server.
-
-So after you discover shares with `smb-enum-shares`, you can use `smb-ls` to look inside them.
-
-In other words, use `smb-enum-shares` to identify available shares, and `smb-ls` to see the contents inside them.
+The `smb-ls` script lists contents (files and folders) within each SMB share detected on the target. This is especially useful after identifying shares with `smb-enum-shares`.
 
 **🧠 Why is this useful?**
-- Helps you see real files in public shares.
-- You may find:
-  - `flag.txt`
-  - `credentials.txt`
-  - `backup.zip`
-- If you find something interesting, you can download it using `smbclient`.
+- 🔍 Explore directories for sensitive files (`flag.txt`, `backup.zip`, etc.)
+- 🪪 Identify writable shares for potential upload or exploitation
+- 📦 Discover files that indicate software, tools, or misconfigurations
+
+**INE Lab Example:**
+```bash
+nmap -p445 --script smb-enum-shares,smb-ls --script-args smbusername=administrator,smbpassword=smbserver_771 demo.ine.local
+```
+**📁 Parsed Output Summary**
+
+🔸 ADMIN$ Share (`C:\Windows`)
+| SIZE  | LAST MODIFIED         | NAME       |
+|-------|------------------------|------------|
+| <DIR> | 2013-08-22 13:36:16    | .          |
+| <DIR> | 2013-08-22 13:36:16    | ..         |
+| <DIR> | 2013-08-22 15:39:31    | ADFS       |
+| <DIR> | 2013-08-22 15:39:31    | ADFS\ar   |
+| <DIR> | 2013-08-22 15:39:31    | ADFS\bg   |
+| <DIR> | 2013-08-22 15:39:31    | ADFS\cs   |
+| <DIR> | 2013-08-22 15:39:31    | ADFS\da   |
+| <DIR> | 2013-08-22 15:39:31    | ADFS\de   |
+| <DIR> | 2013-08-22 15:39:31    | ADFS\el   |
+| <DIR> | 2013-08-22 15:39:31    | ADFS\en   |
+
+🔸 C Drive (`C:\`)
+Same files shown in both `C:` and `C$` shares:
+- Program Files (various subfolders)
+- PerfLogs
+- Amazon, Internet Explorer, Update Services, Windows NT, etc.
+
+🔸 Documents Share
+Contains only:
+- `.` and `..` (empty)
+
+🔸 Downloads Share
+Contains only:
+- `.` and `..` (empty)
+
+🔸 print$ Share
+Includes printer driver folders:
+| SIZE    | LAST MODIFIED         | FILE NAME                   |
+|---------|------------------------|-----------------------------|
+| <DIR>   | 2013-08-22 15:39:31    | color                       |
+| 1058    | 2013-08-22 06:54:44    | color\D50.camp             |
+| 1079    | 2013-08-22 06:54:44    | color\D65.camp             |
+| 797     | 2013-08-22 06:54:44    | color\Graphics.gmmp        |
+| 838     | 2013-08-22 06:54:44    | color\MediaSim.gmmp       |
+| 786     | 2013-08-22 06:54:44    | color\Photo.gmmp          |
+| 822     | 2013-08-22 06:54:44    | color\Proofing.gmmp       |
+| 218103  | 2013-08-22 06:54:44    | color\RSWOP.icm           |
+
+**Related Scripts**
+- `smb-enum-shares`: lists available shares (use **before** `smb-ls`)
+- `smbclient`: allows file download/upload from SMB shares
 
 ---
 
