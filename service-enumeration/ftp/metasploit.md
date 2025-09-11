@@ -1,76 +1,75 @@
+# Metasploit Modules for FTP Enumeration
 
-# FTP Enumeration using Metasploit
+This file contains useful Metasploit modules and commands for enumerating FTP services.
 
-This note explains how to enumerate FTP services using Metasploit modules.
+---
 
-## Step 1: Start msfconsole
+## 🔍 1. Check FTP Service Version
 
-```bash
-msfconsole
+**Module:**
+```
+auxiliary/scanner/ftp/ftp_version
 ```
 
-## Step 2: Check FTP service version
-
-Use the `ftp_version` scanner to detect the FTP server version.
-
+**Commands:**
 ```bash
 use auxiliary/scanner/ftp/ftp_version
-set RHOSTS demo.ine.local
+set RHOSTS <target-ip>
 run
 ```
 
-📌 **Result example:** The server is running `ProFTPD 1.3.5a`
+**Purpose:**
+- Identifies the FTP server version (e.g., ProFTPD, vsftpd, etc.)
 
 ---
 
-## Step 3: Brute-force FTP login
+## 🔐 2. FTP Brute Force Login
 
-We use `ftp_login` to try to guess credentials.
+**Module:**
+```
+auxiliary/scanner/ftp/ftp_login
+```
 
+**Commands:**
 ```bash
 use auxiliary/scanner/ftp/ftp_login
-set RHOSTS demo.ine.local
-set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
-set PASS_FILE /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
+set RHOSTS <target-ip>
+set USER_FILE <path-to-userlist>
+set PASS_FILE <path-to-passlist>
 run
 ```
 
-📌 **Example result:** Found credentials: `sysadmin:654321`
+**Purpose:**
+- Tries common username and password combinations to find valid FTP credentials.
+
+📌 Default wordlists:
+- `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+- `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
 
 ---
 
-## Step 4: Check for anonymous login
+## 👤 3. Check for Anonymous FTP Login
 
+**Module:**
+```
+auxiliary/scanner/ftp/anonymous
+```
+
+**Commands:**
 ```bash
 use auxiliary/scanner/ftp/anonymous
-set RHOSTS demo.ine.local
+set RHOSTS <target-ip>
 run
 ```
 
-📌 If anonymous login is **not allowed**, you'll see: `Login failed`.
+**Purpose:**
+- Checks if anonymous login is allowed (no username/password required)
 
 ---
 
-## Step 5: Login via FTP manually
+## 💡 Notes
 
-Now that we have valid credentials, login to the FTP server:
-
-```bash
-ftp demo.ine.local
-```
-
-Then enter:
-
-- Username: `sysadmin`
-- Password: `654321`
-
-You should be logged in and able to use commands like `ls`, `get`, etc.
-
----
-
-## Summary
-
-- We scanned the FTP service for version info.
-- Performed a brute-force to get credentials.
-- Checked for anonymous login.
-- Logged in manually using found credentials.
+- You can run these modules directly from msfconsole.
+- Always start with `ftp_version` to detect the service.
+- Try anonymous login before brute force.
+- Use `show options` to review module requirements.
