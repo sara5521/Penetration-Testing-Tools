@@ -43,6 +43,28 @@ These scripts help you gather important information from the SMB service, such a
 ```bash
 nmap -p 445 --script smb-os-discovery <target-ip>
 ```
+**INE Lab Example**
+```bash
+nmap --script smb-os-discovery -p 445 demo.ine.local
+```
+**📸 Sample Output:**
+```bash
+Host script results:
+| smb-os-discovery:
+|   OS: Windows 6.1 (Samba 4.3.11-Ubuntu)
+|   Computer name: demo
+|   NetBIOS computer name: SAMBA-RECON\x00
+|   Domain name: ine.local
+|   FQDN: demo.ine.local
+|   System time: 2024-07-05T01:34:01+08:00
+```
+**Interpretation:**
+- 🖥️ OS: Samba 4.3.11 running on Windows 6.1 (probably an emulated setup)
+- 💻 Computer name: `demo`
+- 🧾 NetBIOS Name: `SAMBA-RECON`
+- 🏢 Domain: `ine.local`
+- ⏰ System Time: Useful for timestamp-based exploits or detecting timezone config
+
 ---
 
 ## 🌐 2. Detect SMB Protocol Version
