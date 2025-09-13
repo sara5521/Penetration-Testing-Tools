@@ -67,5 +67,3 @@ Use this information to decide:
 - What enumeration scripts or exploits to run
 - Whether a port/service needs authentication or allows anonymous access
 - Which tools to use next (`nmap`, `hydra`, `smbclient`, etc.)
-
----
