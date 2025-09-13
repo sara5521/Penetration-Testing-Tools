@@ -1,81 +1,169 @@
-# 📡 Metasploit: SMB Version Enumeration
+# Apache Enumeration with Metasploit
 
-This module is used to detect the version of SMB running on a target system using Metasploit.
-
----
-
-## 🎯 Purpose
-
-To identify which version of the SMB (Server Message Block) protocol is running on the target host. This helps in:
-- Identifying vulnerabilities (e.g., EternalBlue affects SMBv1)
-- Planning further attacks or enumeration steps
+This lab demonstrates how to enumerate an Apache web server using different Metasploit auxiliary modules. Each module reveals useful information such as server version, hidden directories, login pages, and user directories.
 
 ---
 
-## 🛠️ Metasploit Module
+## 🧪 Lab Environment
+- Target: `victim-1` (Apache 2.4.18 on Ubuntu)
+- Tool: `Metasploit Framework`
+- Goal: Perform enumeration using Metasploit modules
 
-**Module Path:**
-```
-scanner/smb/smb_version
+---
+
+## 🔍 Step-by-Step Enumeration
+
+### 🟢 Step 1: Check Target is Alive
+```bash
+ping -c 5 victim-1
 ```
 
 ---
 
-## 📌 Usage Steps
-
-### 1. Start Metasploit Console
+### 🧩 Module 1: `http_version`
 ```bash
-msfconsole
+use auxiliary/scanner/http/http_version
+set RHOSTS victim-1
+run
+```
+> Detects Apache version: `Apache/2.4.18 (Ubuntu)`
+
+---
+
+### 🧩 Module 2: `robots_txt`
+```bash
+use auxiliary/scanner/http/robots_txt
+set RHOSTS victim-1
+run
+```
+> Found disallowed paths:
+```
+/data
+/secure
 ```
 
-### 2. Use the SMB Version Scanner Module
+---
+
+### 🧩 Module 3: `http_header`
 ```bash
-use scanner/smb/smb_version
+use auxiliary/scanner/http/http_header
+set RHOSTS victim-1
+run
 ```
 
-### 3. Set the Target IP
+#### 🔁 With Target Path:
 ```bash
-set RHOSTS <target-ip>
+set TARGETURI /secure
 ```
-Replace `<target-ip>` with the IP address of the target machine.
+> `/secure` is protected with Basic Auth
 
-### 4. Run the Scan
+---
+
+### 🧩 Module 4: `brute_dirs`
 ```bash
+use auxiliary/scanner/http/brute_dirs
+set RHOSTS victim-1
+run
+```
+> Found paths: `/doc`, `/pro`
+
+---
+
+### 🧩 Module 5: `dir_scanner`
+```bash
+use auxiliary/scanner/http/dir_scanner
+set RHOSTS victim-1
+set DICTIONARY /usr/share/metasploit-framework/data/wordlists/directory.txt
 run
 ```
 
 ---
 
-## 📸 Example
+### 🧩 Module 6: `dir_listing`
 ```bash
-msf6 > use scanner/smb/smb_version
-msf6 auxiliary(scanner/smb/smb_version) > set RHOSTS 10.10.45.13
-RHOSTS => 10.10.45.13
-msf6 auxiliary(scanner/smb/smb_version) > run
+use auxiliary/scanner/http/dir_listing
+set RHOSTS victim-1
+set PATH /data
+run
+```
+> Directory listing enabled for `/data`
 
-[*] 10.10.45.13:445       - SMB Detected (versions:) (preferred dialect: SMB 2.1)
-[*] 10.10.45.13:445       -   OS: Windows 6.1 (build: 7601) Service Pack 1
+---
+
+### 🧩 Module 7: `files_dir`
+```bash
+use auxiliary/scanner/http/files_dir
+set RHOSTS victim-1
+set VERBOSE false
+run
 ```
 
 ---
 
-## 🧠 Notes
+### 🧩 Module 8: `http_put` (File Upload)
+```bash
+use auxiliary/scanner/http/http_put
+set RHOSTS victim-1
+set PATH /data
+set FILENAME test.txt
+set FILEDATA "Welcome To AttackDefense"
+run
+```
 
-- If the module returns `SMB 1.0`, that could be a sign of an outdated system.
-- Windows 6.1 → Windows 7 or Windows Server 2008 R2
-- This module is useful for OS fingerprinting and vulnerability checking.
+#### 📥 Then verify upload:
+```bash
+wget http://victim-1/data/test.txt
+cat test.txt
+```
+
+#### ❌ Delete uploaded file:
+```bash
+set ACTION DELETE
+```
 
 ---
 
-## ✅ Related Tools
-
-- `nmap --script smb-protocols` → Also shows supported SMB versions
-- `smbclient` → Connect to SMB shares after discovering version
+### 🧩 Module 9: `http_login`
+```bash
+use auxiliary/scanner/http/http_login
+set RHOSTS victim-1
+set AUTH_URI /secure/
+set VERBOSE false
+run
+```
+> Valid credentials found: `bob:123321`
 
 ---
 
-## 🧠 Tips
+### 🧩 Module 10: `apache_userdir_enum`
+```bash
+use auxiliary/scanner/http/apache_userdir_enum
+set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
+set RHOSTS victim-1
+set VERBOSE false
+run
+```
 
-- If Metasploit throws a timeout, make sure port 445 is open on the target.
-- You can use a range for RHOSTS: `set RHOSTS 10.10.45.1-254`
-- Combine with `smb_enumshares`, `smb_login`, or `smb_enumusers` for deeper enumeration.
+> Found user directories:
+- rooty
+- bin
+- games
+- nobody
+- sync
+- …
+
+---
+
+## ✅ Summary
+
+We used 10 different auxiliary modules in Metasploit to:
+- Detect Apache version
+- Discover hidden paths and login pages
+- Upload and remove files
+- Enumerate usernames and home directories
+- Identify valid login credentials
+
+---
+
+📁 **Store in GitHub path:**  
+`service-enumeration/http/metasploit.md`
