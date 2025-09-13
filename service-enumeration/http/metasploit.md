@@ -162,8 +162,3 @@ We used 10 different auxiliary modules in Metasploit to:
 - Upload and remove files
 - Enumerate usernames and home directories
 - Identify valid login credentials
-
----
-
-📁 **Store in GitHub path:**  
-`service-enumeration/http/metasploit.md`
