@@ -38,6 +38,13 @@ These modules help you:
 ---
 
 ## 🌐 1. Detect HTTP Version
+
+**Module**
+```bash
+auxiliary/scanner/http/http_version
+```
+
+**Command**
 ```bash
 use auxiliary/scanner/http/http_version
 set RHOSTS victim-1
@@ -46,16 +53,23 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 10.6.18.5:80 Apache httpd 2.4.29 ((Ubuntu))
+[+] 192.74.12.3:80 Apache 2.4.18 ((Ubuntu))
 ```
 
 🔍 **Interpretation:**
-- The web server is **Apache 2.4.29** running on Ubuntu.  
+- The web server is **Apache 2.4.18** running on Ubuntu.  
 - Useful for checking known vulnerabilities against the exact version.  
 
 ---
 
 ## 🤖 2. Enumerate robots.txt
+
+**Module**
+```bash
+auxiliary/scanner/http/robots_txt
+```
+
+**Command**
 ```bash
 use auxiliary/scanner/http/robots_txt
 set RHOSTS victim-1
@@ -64,18 +78,33 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 10.6.18.5:80 Robots.txt found:
-    Disallow: /admin/
-    Disallow: /backup/
+[*] [192.74.12.3] /robots.txt found
+[+] Contents of Robots.txt:
+# robots.txt for attackdefense
+User-agen: test
+# Directories
+Allow: /webmail
+
+User-agent: *
+# Directories
+Disallow: /data
+Disallow: /secure
 ```
 
 🔍 **Interpretation:**
-- Found **hidden directories** `/admin/` and `/backup/`.  
+- Found **hidden directories** `/data` and `/secure`.  
 - These may contain sensitive files or restricted areas.  
 
 ---
 
 ## 📰 3. Grab HTTP Headers
+
+**Module**
+```bash
+auxiliary/scanner/http/http_header
+```
+
+**Command**
 ```bash
 use auxiliary/scanner/http/http_header
 set RHOSTS victim-1
@@ -84,10 +113,10 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 10.6.18.5:80 HTTP Headers:
-    Server: Apache/2.4.29 (Ubuntu)
-    X-Powered-By: PHP/7.2.24
-    Set-Cookie: PHPSESSID=abcd1234; path=/
+[+] 192.74.12.3:80        :CONTENT-TYPE: text/html
+[+] 192.74.12.3:80        :LAST-MODIFIED: Wed, 27 Feb 2019 04:21:01 GMT
+[+] 192.74.12.3:80        :SERVER: Apache/2.4.18 (Ubuntu)
+[+] 192.74.12.3:80        :detected 3 headers
 ```
 
 🔍 **Interpretation:**
@@ -107,10 +136,10 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 10.6.18.5:80/secure HTTP Headers:
-    HTTP/1.1 401 Unauthorized
-    Server: Apache/2.4.29 (Ubuntu)
-    WWW-Authenticate: Basic realm="Restricted Area"
+[+] 192.74.12.3:80        :CONTENT-TYPE: text/html; charse=iso-8859-1
+[+] 192.74.12.3:80        :SERVER: Apache/2.4.18 (Ubuntu)
+[+] 192.74.12.3:80        :WWW-AUTHENTICATE: Basic realm="Restricted Content"
+[+] 192.74.12.3:80        :detected 3 headers
 ```
 
 🔍 **Interpretation:**
