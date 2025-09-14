@@ -4,14 +4,6 @@ This tool helps identify the **exact version** of the SMB (Samba) server running
 
 ---
 
-## 📂 Path in GitHub Project
-
-```
-service-enumeration/smb/metasploit.md
-```
-
----
-
 ## 🎯 Purpose
 
 The `smb_version` auxiliary module in Metasploit helps you:
