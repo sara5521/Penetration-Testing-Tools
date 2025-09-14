@@ -41,11 +41,11 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 10.6.18.10:21 - FTP Server: vsFTPd 3.0.3
+[+] 192.228.115.3:21 - FTP Server: vsFTPd 3.0.3
 ```
 
 🔍 **Interpretation:**
-- The FTP service is running **vsFTPd 3.0.3**.  
+- The FTP service is running ** ProFTPD 1.3.5a**.  
 - Version info is useful to check for known vulnerabilities.  
 
 ---
