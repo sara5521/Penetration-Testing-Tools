@@ -1,75 +1,127 @@
-# Metasploit Modules for FTP Enumeration
+# 📦 Metasploit - FTP Enumeration Modules
 
-This file contains useful Metasploit modules and commands for enumerating FTP services.
+This file explains useful **Metasploit auxiliary modules** for FTP service enumeration and login attempts.  
 
 ---
 
-## 🔍 1. Check FTP Service Version
+## 🎯 Purpose
+
+These modules help you:  
+- Detect FTP service version  
+- Brute-force login credentials  
+- Test anonymous login access  
+- Interact with FTP manually  
+
+---
+
+## 🗂️ FTP Enumeration Modules Summary
+
+| #  | Module / Tool     | What it Does                           |
+|----|-------------------|----------------------------------------|
+| 1  | ftp_version       | Detect FTP server version              |
+| 2  | ftp_login         | Brute-force FTP login with wordlists   |
+| 3  | ftp/anonymous     | Check if anonymous login is allowed    |
+| 4  | ftp client        | Manual login and interaction           |
+
+---
+
+## 🔎 1. Detect FTP Version
 
 **Module:**
-```
+```bash
 auxiliary/scanner/ftp/ftp_version
 ```
 
 **Commands:**
 ```bash
 use auxiliary/scanner/ftp/ftp_version
-set RHOSTS <target-ip>
+set RHOSTS demo.ine.local
 run
 ```
 
-**Purpose:**
-- Identifies the FTP server version (e.g., ProFTPD, vsftpd, etc.)
+📸 **Sample Output:**
+```
+[+] 10.6.18.10:21 - FTP Server: vsFTPd 3.0.3
+```
+
+🔍 **Interpretation:**
+- The FTP service is running **vsFTPd 3.0.3**.  
+- Version info is useful to check for known vulnerabilities.  
 
 ---
 
-## 🔐 2. FTP Brute Force Login
+## 🔐 2. Brute-force FTP Login
 
 **Module:**
-```
+```bash
 auxiliary/scanner/ftp/ftp_login
 ```
 
 **Commands:**
 ```bash
 use auxiliary/scanner/ftp/ftp_login
-set RHOSTS <target-ip>
-set USER_FILE <path-to-userlist>
-set PASS_FILE <path-to-passlist>
+set RHOSTS demo.ine.local
+set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
+set PASS_FILE /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
 run
 ```
 
-**Purpose:**
-- Tries common username and password combinations to find valid FTP credentials.
+📸 **Sample Output:**
+```
+[+] 10.6.18.10:21 - Login Successful: user:password123
+```
 
-📌 Default wordlists:
-- `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
-- `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
+🔍 **Interpretation:**
+- Found valid credentials → `user:password123`.  
+- Can be used to log in manually or escalate privileges.  
 
 ---
 
-## 👤 3. Check for Anonymous FTP Login
+## 👤 3. Check Anonymous Login
 
 **Module:**
-```
+```bash
 auxiliary/scanner/ftp/anonymous
 ```
 
 **Commands:**
 ```bash
 use auxiliary/scanner/ftp/anonymous
-set RHOSTS <target-ip>
+set RHOSTS demo.ine.local
 run
 ```
 
-**Purpose:**
-- Checks if anonymous login is allowed (no username/password required)
+📸 **Sample Output:**
+```
+[+] 10.6.18.10:21 - Anonymous READ/WRITE access allowed
+```
+
+🔍 **Interpretation:**
+- Anonymous login is enabled.  
+- Some servers allow `ftp` / `anonymous` login with no password or email.  
+- Dangerous misconfiguration → attacker can upload or download files.  
 
 ---
 
-## 💡 Notes
+## 📂 4. Manual FTP Interaction
+```bash
+ftp demo.ine.local
+```
 
-- You can run these modules directly from msfconsole.
-- Always start with `ftp_version` to detect the service.
-- Try anonymous login before brute force.
-- Use `show options` to review module requirements.
+📸 **Sample Output:**
+```
+Connected to demo.ine.local.
+220 (vsFTPd 3.0.3)
+Name (demo.ine.local:kali): user
+331 Please specify the password.
+Password: password123
+230 Login successful.
+ftp>
+```
+
+🔍 **Interpretation:**
+- Manually logged in to FTP using discovered credentials.  
+- You can now run FTP commands:  
+  - `ls` → list files  
+  - `get file.txt` → download  
+  - `put file.txt` → upload  
