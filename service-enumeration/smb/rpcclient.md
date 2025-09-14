@@ -74,11 +74,5 @@ netshareenumall     # List all shares
 | `enum4linux`| Wrapper for smbclient & rpcclient tools  |
 
 ---
-
-## 📂 Path in Repo
-
-This file belongs in:
-
-```
 /service-enumeration/smb/rpcclient.md
 ```
