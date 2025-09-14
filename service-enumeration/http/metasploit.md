@@ -1,14 +1,27 @@
-# Metasploit HTTP Enumeration Modules
+# 🌐 Metasploit - Apache HTTP Enumeration
 
-This file contains documentation of the Metasploit auxiliary modules used in the **Apache Enumeration** lab. Each module helps enumerate HTTP services and content on a target machine running a web server.
+This document includes all Metasploit auxiliary modules used in the **Apache Enumeration** lab.
 
 ---
 
-## 1. `http_version`
+## 🎯 Purpose
 
-**Module**: `auxiliary/scanner/http/http_version`
+This series of Metasploit modules allows you to enumerate different aspects of an Apache web server, including:
 
-This module checks the HTTP service version running on the target.
+* HTTP version
+* Server headers
+* Directory and file discovery
+* PUT and DELETE methods
+* Login pages
+* User directory enumeration
+
+---
+
+## 🧰 Tools & Modules Used
+
+### 1. `http_version`
+
+Detects the HTTP server version.
 
 ```bash
 use auxiliary/scanner/http/http_version
@@ -16,17 +29,9 @@ set RHOSTS victim-1
 run
 ```
 
-✅ Output:
+### 2. `robots_txt`
 
-* Detected Apache 2.4.18 on Ubuntu.
-
----
-
-## 2. `robots_txt`
-
-**Module**: `auxiliary/scanner/http/robots_txt`
-
-Checks for `robots.txt` file to discover disallowed or hidden paths.
+Checks for `robots.txt` file.
 
 ```bash
 use auxiliary/scanner/http/robots_txt
@@ -34,13 +39,9 @@ set RHOSTS victim-1
 run
 ```
 
----
+### 3. `http_header`
 
-## 3. `http_header`
-
-**Module**: `auxiliary/scanner/http/http_header`
-
-Used to view HTTP response headers from the target.
+Grabs HTTP headers.
 
 ```bash
 use auxiliary/scanner/http/http_header
@@ -48,11 +49,9 @@ set RHOSTS victim-1
 run
 ```
 
----
+### 4. `http_header` with URI
 
-## 4. `http_header` (custom path)
-
-Scans a specific endpoint for HTTP headers.
+Grabs headers for a specific path.
 
 ```bash
 use auxiliary/scanner/http/http_header
@@ -61,13 +60,9 @@ set TARGETURI /secure
 run
 ```
 
----
+### 5. `brute_dirs`
 
-## 5. `brute_dirs`
-
-**Module**: `auxiliary/scanner/http/brute_dirs`
-
-Attempts to brute-force directory names on the target.
+Brute-forces common directories.
 
 ```bash
 use auxiliary/scanner/http/brute_dirs
@@ -75,13 +70,9 @@ set RHOSTS victim-1
 run
 ```
 
----
+### 6. `dir_scanner`
 
-## 6. `dir_scanner`
-
-**Module**: `auxiliary/scanner/http/dir_scanner`
-
-Scans for common directories using a wordlist.
+Scans directories using a wordlist.
 
 ```bash
 use auxiliary/scanner/http/dir_scanner
@@ -90,13 +81,9 @@ set DICTIONARY /usr/share/metasploit-framework/data/wordlists/directory.txt
 run
 ```
 
----
+### 7. `dir_listing`
 
-## 7. `dir_listing`
-
-**Module**: `auxiliary/scanner/http/dir_listing`
-
-Checks if directory listing is enabled on a given path.
+Enumerates directory listing (like `/data`).
 
 ```bash
 use auxiliary/scanner/http/dir_listing
@@ -105,13 +92,9 @@ set PATH /data
 run
 ```
 
----
+### 8. `files_dir`
 
-## 8. `files_dir`
-
-**Module**: `auxiliary/scanner/http/files_dir`
-
-Lists files in directories where listing is enabled.
+Lists files inside a given directory.
 
 ```bash
 use auxiliary/scanner/http/files_dir
@@ -120,13 +103,9 @@ set VERBOSE false
 run
 ```
 
----
+### 9. `http_put`
 
-## 9. `http_put` (upload file)
-
-**Module**: `auxiliary/scanner/http/http_put`
-
-Uploads a file to the web server using HTTP PUT.
+Uploads a file using the PUT method.
 
 ```bash
 use auxiliary/scanner/http/http_put
@@ -137,18 +116,14 @@ set FILEDATA "Welcome To AttackDefense"
 run
 ```
 
----
-
-## 10. `wget` (download the uploaded file)
+### 10. `wget` to verify upload
 
 ```bash
 wget http://victim-1:80/data/test.txt
 cat test.txt
 ```
 
----
-
-## 11. `http_put` (delete file)
+### 11. `http_put` to delete file
 
 ```bash
 use auxiliary/scanner/http/http_put
@@ -159,23 +134,15 @@ set ACTION DELETE
 run
 ```
 
----
-
-## 12. `wget` (confirm deletion)
+### 12. `wget` to confirm deletion
 
 ```bash
 wget http://victim-1:80/data/test.txt
 ```
 
-❌ Should return 404 Not Found.
+### 13. `http_login`
 
----
-
-## 13. `http_login`
-
-**Module**: `auxiliary/scanner/http/http_login`
-
-Attempts to brute-force login to a protected directory.
+Attempts login brute-force.
 
 ```bash
 use auxiliary/scanner/http/http_login
@@ -185,13 +152,9 @@ set VERBOSE false
 run
 ```
 
----
+### 14. `apache_userdir_enum`
 
-## 14. `apache_userdir_enum`
-
-**Module**: `auxiliary/scanner/http/apache_userdir_enum`
-
-Enumerates users based on Apache UserDir feature.
+Enumerates user directories on Apache.
 
 ```bash
 use auxiliary/scanner/http/apache_userdir_enum
@@ -200,3 +163,41 @@ set RHOSTS victim-1
 set VERBOSE false
 run
 ```
+
+---
+
+## 📸 Sample Output
+
+Sample outputs include:
+
+* Apache/2.4.18 (Ubuntu) version detection
+* Found directories or files
+* Success/failure of file PUT/DELETE
+* List of user directories (like `/~root`, `/~admin`, etc.)
+
+---
+
+## 🧠 Pro Tips
+
+* Combine `http_version`, `http_header`, and `robots_txt` to gather basic info quickly.
+* Use `http_put` to test for file upload vulnerabilities.
+* `apache_userdir_enum` helps you find user accounts served by Apache, useful for further enumeration or login attempts.
+
+---
+
+## 🔗 Related Modules
+
+| Module Path                                  | Purpose                       |
+| -------------------------------------------- | ----------------------------- |
+| `auxiliary/scanner/http/http_version`        | Detect Apache HTTP version    |
+| `auxiliary/scanner/http/robots_txt`          | Parse disallowed directories  |
+| `auxiliary/scanner/http/http_header`         | Grab HTTP headers             |
+| `auxiliary/scanner/http/http_login`          | Brute-force login credentials |
+| `auxiliary/scanner/http/http_put`            | Upload or delete files        |
+| `auxiliary/scanner/http/brute_dirs`          | Brute-force directories       |
+| `auxiliary/scanner/http/files_dir`           | List files in a path          |
+| `auxiliary/scanner/http/apache_userdir_enum` | Enumerate Apache userdirs     |
+
+---
+
+📚 [Metasploit Docs](https://docs.rapid7.com/metasploit/)
