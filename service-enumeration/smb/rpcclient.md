@@ -73,6 +73,3 @@ netshareenumall     # List all shares
 | `nmap` NSE  | Run SMB-related scripts                  |
 | `enum4linux`| Wrapper for smbclient & rpcclient tools  |
 
----
-/service-enumeration/smb/rpcclient.md
-```
