@@ -1,4 +1,4 @@
-# 🌐 Metasploit - Apache HTTP Enumeration
+<img width="754" height="260" alt="d08db3bdc1bfab75eb6413fdc6a8f3740cbbf7a670813e5d91cf7e4bc5c44941" src="https://github.com/user-attachments/assets/18fc44a8-f21d-4b2c-aeb9-19a62e6c5d32" /># 🌐 Metasploit - Apache HTTP Enumeration
 
 This document includes all Metasploit auxiliary modules used in the **Apache Enumeration** lab.
 
@@ -28,6 +28,7 @@ use auxiliary/scanner/http/http_version
 set RHOSTS victim-1
 run
 ```
+<img width="754" height="260" alt="d08db3bdc1bfab75eb6413fdc6a8f3740cbbf7a670813e5d91cf7e4bc5c44941" src="https://github.com/user-attachments/assets/c140d68e-d039-481e-b715-c460955953d4" />
 
 ### 2. `robots_txt`
 
