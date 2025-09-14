@@ -72,6 +72,7 @@ Host script results:
 nmap -p 445 --script smb-protocols <target-ip>
 ```
 **📌 Purpose:**
+
 This script shows which SMB version the server supports:
 - SMBv1 → Old and not secure ⚠️
 - SMBv2 / SMBv3 → Newer and more secure ✅
@@ -88,6 +89,7 @@ This script shows which SMB version the server supports:
 nmap -p 445 --script smb-security-mode <target-ip>
 ```
 **📌 Purpose:**
+
 This script checks how secure the SMB server is by showing:
 - If SMB signing is supported
 - If SMB signing is required
@@ -123,6 +125,7 @@ Host script results:
 nmap -p 445 --script smb-enum-domains <target-ip>
 ```
 **📌 Purpose:**
+
 This script tries to list the Windows domains or workgroups the SMB server belongs to.
 
 Think of a domain as the "name of the Windows network" (like `CORP`, `DEMO.LOCAL`, or `WORKGROUP`).
@@ -175,6 +178,7 @@ Host script results:
 nmap -p 445 --script smb-enum-users <target-ip>
 ```
 **📌 Purpose:**
+
 This script tries to list user accounts on a Windows machine by querying the SMB service.
 
 **🧠 Why is this useful?**
@@ -220,6 +224,7 @@ Host script results:
 nmap -p 445 --script smb-enum-groups <target-ip>
 ```
 **📌 Purpose:**
+
 This script tries to list the Windows groups on the target — groups are like "roles" or "permission levels" for users.
 
 **🧠 Why is this useful?**
@@ -264,6 +269,7 @@ Host script results:
 nmap -p 445 --script smb-enum-sessions <target-ip>
 ```
 **📌 Purpose:**
+
 This script tries to list current SMB sessions — in other words, it shows:
 - Who is currently connected to the SMB server
 - What users or machines are active
@@ -303,6 +309,7 @@ Host script results:
 nmap -p 445 --script smb-enum-services <target-ip>
 ```
 **📌 Purpose:**
+
 This script tries to list the Windows services that are running on the target through SMB.
 
 Think of services as background programs like:
@@ -379,6 +386,7 @@ Host script results:
 nmap -p 445 --script smb-enum-shares <target-ip>
 ```
 **📌 Purpose:**
+
 The `smb-enum-shares` script helps you discover shared folders on a target system, showing which ones are accessible and whether they are hidden or writable.
 
 **🧠 Why Is This Useful?**
@@ -422,6 +430,7 @@ Host script results:
 nmap -p 445 --script smb-ls <target-ip>
 ```
 **📌 Purpose:**
+
 The `smb-ls` script lists contents (files and folders) within each SMB share detected on the target. This is especially useful after identifying shares with `smb-enum-shares`.
 
 **🧠 Why is this useful?**
@@ -487,6 +496,7 @@ Includes printer driver folders:
 nmap -p 445 --script smb-server-stats <target-ip>
 ```
 **📌 Purpose:**
+
 This script gets real-time stats from the SMB server, like:
 - How many files are open
 - How many users are connected
@@ -494,6 +504,7 @@ This script gets real-time stats from the SMB server, like:
 - Server uptime (if available)
 
 **🧠 Why is this useful?**
+
 This script helps monitor real-time usage of the SMB server. Useful for:
 - 🔍 Spotting user or attacker activity (file access, logins)
 - 🧪 Checking if the server is actively being used
@@ -528,6 +539,7 @@ Host script results:
 nmap -p 445 --script <script-name> --script-args <key>=<value>
 ```
 **📌 Purpose:**
+
 `--script-args` lets you customize the behavior of NSE scripts in Nmap by providing extra input (like usernames, passwords, timeouts, etc.).
 
 It’s like giving the script extra instructions.
