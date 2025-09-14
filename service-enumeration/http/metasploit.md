@@ -1,4 +1,4 @@
-<img width="754" height="260" alt="d08db3bdc1bfab75eb6413fdc6a8f3740cbbf7a670813e5d91cf7e4bc5c44941" src="https://github.com/user-attachments/assets/18fc44a8-f21d-4b2c-aeb9-19a62e6c5d32" /># 🌐 Metasploit - Apache HTTP Enumeration
+<img width="838" height="412" alt="ff5d4835fbd8966e9f0db6d50c4433288c23de2ae61173b5a3400adff33545fc" src="https://github.com/user-attachments/assets/af3af55c-8e47-4a5d-bfa2-099f0c8c09d3" /><img width="838" height="412" alt="ff5d4835fbd8966e9f0db6d50c4433288c23de2ae61173b5a3400adff33545fc" src="https://github.com/user-attachments/assets/7fbcc5b4-afa5-4576-920d-62176dce0925" /><img width="754" height="260" alt="d08db3bdc1bfab75eb6413fdc6a8f3740cbbf7a670813e5d91cf7e4bc5c44941" src="https://github.com/user-attachments/assets/18fc44a8-f21d-4b2c-aeb9-19a62e6c5d32" /># 🌐 Metasploit - Apache HTTP Enumeration
 
 This document includes all Metasploit auxiliary modules used in the **Apache Enumeration** lab.
 
@@ -39,6 +39,8 @@ use auxiliary/scanner/http/robots_txt
 set RHOSTS victim-1
 run
 ```
+<img width="1676" height="824" alt="image" src="https://github.com/user-attachments/assets/8906db9a-4050-4dbd-8677-041693dbbcfe" />
+
 
 ### 3. `http_header`
 
