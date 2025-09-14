@@ -41,11 +41,11 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 192.228.115.3:21 - FTP Server: vsFTPd 3.0.3
+[+] 192.228.115.3:21 - FTP Server: ProFTPD 1.3.5a
 ```
 
 🔍 **Interpretation:**
-- The FTP service is running ** ProFTPD 1.3.5a**.  
+- The FTP service is running **ProFTPD 1.3.5a**.  
 - Version info is useful to check for known vulnerabilities.  
 
 ---
@@ -68,11 +68,11 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 10.6.18.10:21 - Login Successful: user:password123
+[+] 192.228.115.3:21 - Login Successful: sysadmin:654321
 ```
 
 🔍 **Interpretation:**
-- Found valid credentials → `user:password123`.  
+- Found valid credentials → `sysadmin:654321`.  
 - Can be used to log in manually or escalate privileges.  
 
 ---
@@ -93,7 +93,8 @@ run
 
 📸 **Sample Output:**
 ```
-[+] 10.6.18.10:21 - Anonymous READ/WRITE access allowed
+[+] demo.ine.local:21 - scanned 1 of 1 hosts (100% complete)
+[+] Auxiliary module ececution completed
 ```
 
 🔍 **Interpretation:**
@@ -111,11 +112,13 @@ ftp demo.ine.local
 📸 **Sample Output:**
 ```
 Connected to demo.ine.local.
-220 (vsFTPd 3.0.3)
-Name (demo.ine.local:kali): user
+220 (ProFTPD 1.3.5a)
+Name (demo.ine.local:root): sysadmin
 331 Please specify the password.
-Password: password123
-230 Login successful.
+Password:
+230 User sysadmin logged in
+Remote system type is UNIX.
+Using binary mode to transfer files.
 ftp>
 ```
 
