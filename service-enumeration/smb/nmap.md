@@ -20,7 +20,7 @@ These scripts help you gather important information from the SMB service, such a
 
 ## 🗂️ SMB Enumeration Scripts Summary
 
-|   | Script                 | What it Does                             |
+| # | Script                 | What it Does                             |
 |---|------------------------|------------------------------------------|
 | 1 | smb-os-discovery       | Detect OS and hostname                   |
 | 2 | smb-protocols          | Show SMB versions supported              |
