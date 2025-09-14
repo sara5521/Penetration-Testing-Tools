@@ -487,7 +487,6 @@ Includes printer driver folders:
 nmap -p 445 --script smb-server-stats <target-ip>
 ```
 **📌 Purpose:**
-
 This script gets real-time stats from the SMB server, like:
 - How many files are open
 - How many users are connected
