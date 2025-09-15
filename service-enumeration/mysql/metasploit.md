@@ -284,7 +284,21 @@ run
 - Hashes are stored instead of plaintext passwords in the MySQL `mysql.user` table  
 - Attackers can crack these hashes offline using tools like **John the Ripper** or **Hashcat**  
 - If cracked, attackers recover the **real plaintext password**  
-- Recovered credentials may be reused across other services if password reuse exists 
+- Recovered credentials may be reused across other services if password reuse exists  
+
+### 🔑 Cracking Examples  
+
+**Using John the Ripper**  
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --show hashes.txt
+```  
+
+**Using Hashcat**  
+```bash
+hashcat -m 300 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
+hashcat -m 300 --show hashes.txt
+``` 
 
 ---
 
