@@ -25,7 +25,7 @@ These modules help you:
 
 ---
 
-## 🔎 1. Detect FTP Version
+## 1️⃣ Detect FTP Version
 
 **Module:**
 ```bash
@@ -50,7 +50,7 @@ run
 
 ---
 
-## 🔐 2. Brute-force FTP Login
+## 2️⃣ Brute-force FTP Login
 
 **Module:**
 ```bash
@@ -77,7 +77,7 @@ run
 
 ---
 
-## 👤 3. Check Anonymous Login
+## 3️⃣ Check Anonymous Login
 
 **Module:**
 ```bash
@@ -104,7 +104,7 @@ run
 
 ---
 
-## 📂 4. Manual FTP Interaction
+## 4️⃣ Manual FTP Interaction
 ```bash
 ftp demo.ine.local
 ```
