@@ -4,14 +4,6 @@ This file explains how to use **Telnet** to manually interact with the SMTP serv
 
 ---
 
-## 📂 Path in GitHub Project
-
-```
-service-enumeration/smtp/telnet.md
-```
-
----
-
 ## 🎯 Purpose
 
 Using Telnet with SMTP helps you:
