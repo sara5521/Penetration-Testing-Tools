@@ -37,7 +37,7 @@ These modules help you:
 
 ---
 
-## 🌐 1. Detect HTTP Version
+## 1️⃣ Detect HTTP Version
 
 **Module**
 ```bash
@@ -62,7 +62,7 @@ run
 
 ---
 
-## 🤖 2. Enumerate robots.txt
+## 2️⃣ Enumerate robots.txt
 
 **Module**
 ```bash
@@ -97,7 +97,7 @@ Disallow: /secure
 
 ---
 
-## 📰 3. Grab HTTP Headers
+## 3️⃣ Grab HTTP Headers
 
 **Module**
 ```bash
@@ -126,7 +126,7 @@ run
 
 ---
 
-## 📰 4. Grab HTTP Headers (Custom Path)
+## 4️⃣ Grab HTTP Headers (Custom Path)
 
 **Command**
 ```bash
@@ -150,7 +150,7 @@ run
 
 ---
 
-## 📂 5. Brute-force Directories
+## 5️⃣ Brute-force Directories
 
 **Command**
 ```bash
@@ -171,7 +171,7 @@ run
 
 ---
 
-## 📑 6. Directory Scanner with Wordlist
+## 6️⃣ Directory Scanner with Wordlist
 
 **Command**
 ```bash
@@ -192,7 +192,7 @@ run
 
 ---
 
-## 📋 7. Directory Listing Check
+## 7️⃣ Directory Listing Check
 
 **Command**
 ```bash
@@ -215,7 +215,7 @@ run
 
 ---
 
-## 📁 8. Search for Sensitive Files
+## 8️⃣ Search for Sensitive Files
 
 **Command**
 ```bash
@@ -237,7 +237,7 @@ run
 
 ---
 
-## 📤 9. Upload File via HTTP PUT
+## 9️⃣ Upload File via HTTP PUT
 
 **Command**
 ```bash
@@ -260,7 +260,7 @@ run
 
 ---
 
-## 📥 10. Confirm Upload with wget
+## 1️⃣0️⃣ Confirm Upload with wget
 
 **Command**
 ```bash
@@ -278,7 +278,7 @@ Welcome To AttackDefense
 
 ---
 
-## 🗑️ 11. Delete File via HTTP PUT
+## 1️⃣1️⃣ Delete File via HTTP PUT
 
 **Command**
 ```bash
@@ -300,7 +300,7 @@ run
 
 ---
 
-## 🔍 12. Confirm File Deletion
+## 1️⃣2️⃣ Confirm File Deletion
 
 **Command**
 ```bash
@@ -317,7 +317,7 @@ wget http://victim-1:80/data/test.txt
 
 ---
 
-## 🔐 13. HTTP Login Brute-force
+## 1️⃣3️⃣ HTTP Login Brute-force
 
 **Command**
 ```bash
@@ -339,7 +339,7 @@ run
 
 ---
 
-## 👤 14. Apache Userdir Enumeration
+## 1️⃣4️⃣ Apache Userdir Enumeration
 
 **Command**
 ```bash
