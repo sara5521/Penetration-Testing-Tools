@@ -385,9 +385,9 @@ run
 ```
 
 🔍 **Interpretation:**
-- Identifies directories where files can be written  
-- If `/tmp` or `/root` are writable, attackers can upload **malicious files or scripts**  
-- Writable directories can lead to **privilege escalation or persistence**  
+- Identifies writable directories on the target. 
+- Writable directories can be abused by attackers to upload or store files.  
+- This is a critical finding because it can lead to persistence or privilege escalation.  
 
 ### 📂 How to Test Writable Directories  
 If a directory is marked as writable, you can try creating a test file:  
@@ -396,5 +396,5 @@ echo "test123" > /tmp/test.txt
 cat /tmp/test.txt
 ```  
 
-- If the file is created successfully, the directory is confirmed writable.  
-- Attackers could upload web shells, cron jobs, or binaries to escalate privileges.  
+- If the file is created successfully → directory is confirmed writable.  
+- Attackers could use writable directories for persistence (scripts, cron jobs) or privilege escalation.  
