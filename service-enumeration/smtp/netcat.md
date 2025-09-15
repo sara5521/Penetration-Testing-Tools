@@ -4,13 +4,6 @@ This section shows how to use **netcat** to talk to an SMTP server and check if 
 
 ---
 
-## 📂 Path in GitHub Project
-```
-service-enumeration/smtp/netcat.md
-```
-
----
-
 ## 🎯 Purpose
 With netcat you can:
 - Connect to the SMTP service (port **25**).
