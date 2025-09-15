@@ -153,8 +153,21 @@ run
 ```
 
 🔍 **Interpretation:**
-- Allows execution of custom SQL queries on the target  
-- Useful for extracting sensitive data or testing permissions  
+- Allows execution of **custom SQL queries**  
+- Attackers can extract sensitive data directly  
+- Defenders should enforce **least privilege** and avoid using root accounts for applications  
+
+### 📂 Useful SQL Commands  
+Once authenticated, you can run custom queries such as:  
+```sql
+SHOW DATABASES;
+SHOW TABLES;
+SELECT * FROM users LIMIT 5;
+```  
+
+- `SHOW DATABASES;` → Lists all databases.  
+- `SHOW TABLES;` → Lists tables inside the current database.  
+- `SELECT * FROM users;` → Dumps data from the `users` table (could expose usernames and passwords).  
 
 ---
 
@@ -322,5 +335,16 @@ run
 ```
 
 🔍 **Interpretation:**
-- Identifies writable directories on the target  
-- Can be exploited for uploading files or privilege escalation  
+- Identifies directories where files can be written  
+- If `/tmp` or `/root` are writable, attackers can upload **malicious files or scripts**  
+- Writable directories can lead to **privilege escalation or persistence**  
+
+### 📂 How to Test Writable Directories  
+If a directory is marked as writable, you can try creating a test file:  
+```bash
+echo "test123" > /tmp/test.txt
+cat /tmp/test.txt
+```  
+
+- If the file is created successfully, the directory is confirmed writable.  
+- Attackers could upload web shells, cron jobs, or binaries to escalate privileges.  
