@@ -30,7 +30,7 @@ These modules help you:
 
 ---
 
-## 1. Detect MySQL Version
+## 1️⃣ Detect MySQL Version
 
 **Module**
 ```bash
@@ -67,7 +67,7 @@ searchsploit mysql 5.5.61
 
 ---
 
-## 2. MySQL Login Bruteforce
+## 2️⃣ MySQL Login Bruteforce
 
 **Module**
 ```bash
@@ -110,7 +110,7 @@ Enter the password (`twinkle`) when prompted.
 
 ---
 
-## 3. MySQL Enum
+## 3️⃣ MySQL Enum
 
 **Module**
 ```bash
@@ -165,7 +165,7 @@ SELECT user, host FROM mysql.user WHERE Super_priv='Y';
 
 ---
 
-## 4. Run Custom SQL Queries
+## 4️⃣ Run Custom SQL Queries
 
 **Module**
 ```bash
@@ -207,7 +207,7 @@ SELECT * FROM users LIMIT 5;
 
 ---
 
-## 5. MySQL File Enumeration
+## 5️⃣ MySQL File Enumeration
 
 **Module**
 ```bash
@@ -254,7 +254,7 @@ grep root /etc/passwd
 
 ---
 
-## 6. Dump MySQL Password Hashes
+## 6️⃣ Dump MySQL Password Hashes
 
 **Module**
 ```bash
@@ -302,7 +302,7 @@ hashcat -m 300 --show hashes.txt
 
 ---
 
-## 7. Dump Database Schema
+## 7️⃣ Dump Database Schema
 
 **Module**
 ```bash
@@ -357,7 +357,7 @@ less /root/.msf4/loot/20250914223702_default_192.162.117.3_mysql_schema_680841.t
 
 ---
 
-## 8. Writable Directories Check
+## 8️⃣ Writable Directories Check
 
 **Module**
 ```bash
