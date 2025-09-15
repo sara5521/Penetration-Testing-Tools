@@ -219,7 +219,10 @@ run
 
 🔍 **Interpretation:**
 - Dumps all password hashes from MySQL user table  
-- Hashes can be cracked offline for plaintext passwords  
+- Hashes are stored instead of plaintext passwords in the MySQL `mysql.user` table  
+- Attackers can crack these hashes offline using tools like **John the Ripper** or **Hashcat**  
+- If cracked, attackers recover the **real plaintext password**  
+- Recovered credentials may be reused across other services if password reuse exists 
 
 ---
 
