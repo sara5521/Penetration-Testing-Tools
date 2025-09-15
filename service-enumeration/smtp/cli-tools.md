@@ -5,14 +5,6 @@ Use this file as a reference for commands, installation instructions, and securi
 
 ---
 
-## 📂 Path in GitHub Project
-
-```
-service-enumeration/smtp/cli-tools.md
-```
-
----
-
 ## 🔎 Important Note
 **The commands here are executed in the shell (terminal) on your machine**, not inside a `telnet` session.  
 If you want to perform the same dialogue manually via Telnet, see `service-enumeration/smtp/telnet.md`.
