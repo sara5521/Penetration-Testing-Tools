@@ -21,9 +21,7 @@ Using Netcat with SMTP helps you:
 |---|--------------------------------|---------------------------------------------|
 | 1 | `nc <host> 25`                 | Connect to the SMTP service                 |
 | 2 | `VRFY <user or email>`         | Ask if a user/email exists                  |
-| 3 | `EXPN <list>`                  | Expand a mailing list (if supported)        |
-| 4 | `RCPT TO:<user@domain>`        | Test delivery to see if user exists         |
-| 5 | `QUIT`                         | Close the SMTP connection cleanly           |
+| 3 | `QUIT`                         | Close the SMTP connection cleanly           |
 
 **Common SMTP reply codes:**
 - **220** → Server ready (banner/greeting)
@@ -33,7 +31,7 @@ Using Netcat with SMTP helps you:
 
 ---
 
-## 🖥️ 1. Connect & Read Banner
+## 1️⃣ Connect & Read Banner
 
 **Input**
 ```bash
@@ -52,7 +50,7 @@ nc demo.ine.local 25
 
 ---
 
-## 👤 2. Verify an Existing User
+## 2️⃣ Verify an Existing User
 
 **Input**
 ```bash
@@ -71,7 +69,7 @@ VRFY admin@openmailbox.xyz
 
 ---
 
-## ❌ 3. Verify a Non-Existing User
+## 3️⃣ Verify a Non-Existing User
 
 **Input**
 ```bash
