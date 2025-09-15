@@ -145,14 +145,6 @@ Admin
 
 ---
 
-## ✅ Save location in repo
-
-```
-service-enumeration/smtp/telnet.md
-```
-
----
-
 ## 🔁 Suggested Next Steps
 
 - Cross-validate findings with `smtp-user-enum`, `smtp_enum` (Metasploit), and `RCPT TO` tests.
