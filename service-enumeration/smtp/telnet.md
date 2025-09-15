@@ -2,6 +2,7 @@
 
 This file explains how to use **Telnet** to manually interact with the SMTP service (port 25) and enumerate its features.
 
+🔗 **For CLI tools like sendemail/swaks/msmtp, see [cli-tools.md](./cli-tools.md)**
 ---
 
 ## 🎯 Purpose
