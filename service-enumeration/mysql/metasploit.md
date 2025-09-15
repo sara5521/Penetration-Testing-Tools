@@ -188,7 +188,20 @@ run
 
 🔍 **Interpretation:**
 - Confirms existence of sensitive files like `/etc/passwd`  
-- Useful for privilege escalation and local enumeration  
+- If `/etc/shadow` or `/root` are accessible, this is a **severe security issue**  
+- Attackers can plan **privilege escalation** using exposed files  
+
+### 📂 How to Verify Files  
+Once a file is discovered, you can try to read it directly if permissions allow:  
+```bash
+cat /etc/passwd
+less /etc/passwd
+grep root /etc/passwd
+```
+
+- `/etc/passwd` lists system users.  
+- `/etc/shadow` (if accessible) contains password hashes.  
+- `/root` directory access could expose sensitive configuration or private keys.
 
 ---
 
