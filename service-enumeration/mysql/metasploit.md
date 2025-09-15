@@ -262,8 +262,22 @@ run
 ```
 
 🔍 **Interpretation:**
-- Dumps schema of all databases  
-- Helps to identify potential data storage locations  
+- Dumps schema (structure) of all databases, including database names and tables  
+- Does not return actual data, but shows the map of where data is stored  
+- Helps attackers identify potential data storage locations (e.g., `users`, `credit_cards`, `customers`)  
+- Defenders should restrict schema access to prevent reconnaissance of sensitive databases  
+
+### 📂 How to View Schema Loot File  
+After running this module, the schema is saved in a loot file (e.g., `/root/.msf4/loot/<filename>`).  
+
+You can view it with:  
+```bash
+cat /root/.msf4/loot/20250914223702_default_192.162.117.3_mysql_schema_680841.txt
+```
+Or:  
+```bash
+less /root/.msf4/loot/20250914223702_default_192.162.117.3_mysql_schema_680841.txt
+```
 
 ---
 
