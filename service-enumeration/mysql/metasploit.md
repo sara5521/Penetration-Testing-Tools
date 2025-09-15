@@ -122,8 +122,10 @@ run
 🔍 **Interpretation:**
 - Lists MySQL users, privileges, and password hashes  
 - Shows server parameters (OS, architecture, logging, SSL, etc.)
-- If **SSL Connection** is disabled, all MySQL traffic (queries, usernames, passwords) is sent in **cleartext** and can be sniffed on the network  
-- If **SSL Connection** is enabled, traffic is **encrypted with TLS**, preventing eavesdropping  
+- **SSL Connection**:
+  - If **SSL Connection** is disabled, all MySQL traffic (queries, usernames, passwords) is sent in **cleartext** and can be sniffed on the network
+  - If **SSL Connection** is enabled, traffic is **encrypted with TLS**, preventing eavesdropping
+- Attackers use this info to identify misconfigurations and privilege escalation paths
 
 ---
 
