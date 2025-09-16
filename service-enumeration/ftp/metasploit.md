@@ -1,162 +1,104 @@
----
-tool: "ftp (metasploit)"
-protocol: "ftp"
-tags: ["ftp","metasploit","enumeration"]
-level: "beginner"
-date: "2025-09-16"
-path: "service-enumeration/ftp/metasploit.md"
----
+# Metasploit - FTP Enumeration Modules
 
-# 📦 Metasploit - FTP Enumeration Modules (Detailed)
+**Path:** `service-enumeration/ftp/metasploit.md`
 
-## 📂 Path in GitHub Project
-```
-service-enumeration/ftp/metasploit.md
-```
+## Purpose
+Metasploit auxiliary modules to enumerate FTP services, test anonymous login, and perform credential checks.
 
-> ⚖️ **Ethics / Scope:** Run these checks only on systems you own or have explicit permission to test.
+## Where to save
+`service-enumeration/ftp/metasploit.md`
 
----
+## Key modules / usage
+- `auxiliary/scanner/ftp/ftp_version` — detect FTP server version.
+- `auxiliary/scanner/ftp/ftp_login` — brute-force FTP credentials.
+- `auxiliary/scanner/ftp/anonymous` — test anonymous login.
+- `ftp` (CLI) — manual interaction once credentials are known.
 
-## 🎯 Purpose
-Metasploit auxiliary modules to enumerate FTP services, test anonymous login, and perform credential checks.  
-Use for reconnaissance, credential testing, and manual verification (download/upload) in labs.
-
----
-
-## 🔗 Quick files (where outputs & screenshots go)
-- Evidence (raw outputs): `service-enumeration/ftp/evidence/`  
-- Screenshots: `service-enumeration/ftp/screenshots/`  
-- Cheat-sheet (1-page): `service-enumeration/ftp/ftp-cheatsheet.md`  
-- Flashcards CSV: `service-enumeration/ftp/ftp-flashcards.csv`
-
----
-
-## 🗂️ Table of contents
-- `ftp_version` — detect server and version  
-- `ftp_login` — credential brute-force / credential testing  
-- `anonymous` — anonymous access checks  
-- `ftp (CLI)` — manual client usage and post-login actions
-
----
-
-## 💡 Quick examples
+## Quick examples
 ```bash
-# msfconsole examples
+# Detect FTP version
 msfconsole -q
-
-# Banner/version
 use auxiliary/scanner/ftp/ftp_version
-set RHOSTS 10.10.10.5
+set RHOSTS demo.ine.local
 run
 
-# Brute-force credentials (careful)
+# Brute-force login (example)
 use auxiliary/scanner/ftp/ftp_login
-set RHOSTS 10.10.10.5
+set RHOSTS demo.ine.local
 set USER_FILE /usr/share/wordlists/users.txt
-set PASS_FILE /usr/share/wordlists/rockyou.txt
-set STOP_ON_SUCCESS true
+set PASS_FILE /usr/share/wordlists/passwords.txt
+run
+
+# Check anonymous login
+use auxiliary/scanner/ftp/anonymous
+set RHOSTS demo.ine.local
+run
+
+# Manual FTP
+ftp demo.ine.local
+```
+
+## How to read common output
+- `FTP Server: <name> <version>` — server and version detected.
+- `Login Successful: user:pass` — valid credentials found.
+- `Anonymous login allowed` — server accepts anonymous access.
+- `220` banner — server greeting.
+- `331` and `230` — password prompt and successful login.
+
+## Practical tips
+- Run `ftp_version` first to know version and check CVEs.
+- Use small, targeted wordlists to avoid lockouts.
+- Document exact output and timestamps for reporting.
+- If anonymous access is allowed, check read/write permissions carefully.
+- Respect lab/rules. Do not brute force on real targets without permission.
+
+## INE lab example
+
+### Input
+```bash
+# Detect version
+use auxiliary/scanner/ftp/ftp_version
+set RHOSTS demo.ine.local
+run
+
+# Brute-force
+use auxiliary/scanner/ftp/ftp_login
+set RHOSTS demo.ine.local
+set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
+set PASS_FILE /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
 run
 
 # Anonymous check
 use auxiliary/scanner/ftp/anonymous
-set RHOSTS 10.10.10.5
+set RHOSTS demo.ine.local
 run
+
+# Manual FTP login
+ftp demo.ine.local
 ```
 
----
-
-## 🔎 How to read common output
-- `FTP Server: ProFTPD 1.3.5a` → banner + version (map to CVEs)  
-- `Login Successful: user:pass` → valid credentials (save in evidence only, DO NOT commit)  
-- Directory listings → if uploads allowed, note path and test carefully in lab
-
----
-
-## 🛠️ Practical tips
-- Save raw output into `service-enumeration/ftp/evidence/<tool>_s<step>_output.txt`.  
-- For brute-force use slow threads and `STOP_ON_SUCCESS` to reduce noise.  
-- If anonymous allowed: manually `ftp` to confirm `ls`, `get`, `put` (only in lab).  
-- Add nmap `-oA` xml to evidence for reproducibility.
-
----
-# 🔍 Module details (expanded)
-
-### ftp_version — Detect FTP server and version
-**Module**
+### Output
 ```
-auxiliary/scanner/ftp/ftp_version
-```
+[+] 192.228.115.3:21 - FTP Server: ProFTPD 1.3.5a
 
-**Important options**
-- `RHOSTS`, `RPORT` (21), `THREADS`  
-**Typical output (snippet)**  
-```
-[+] 192.0.2.3:21 - FTP Server: ProFTPD 1.3.5a
-```  
-**Evidence (save full output):**  
-`service-enumeration/ftp/evidence/ftp_version_s1_output.txt`  
-**Follow-ups:** run `nmap --script ftp-syst,ftp-anon -p21 <target>`.
-
----
-
-### ftp_login — Brute-force / credential testing
-**Module**
-```
-auxiliary/scanner/ftp/ftp_login
-```
-
-**Important options**
-- `USER_FILE`, `PASS_FILE`, `USERPASS_FILE`, `STOP_ON_SUCCESS`, `BRUTEFORCE_SPEED`  
-**Typical output (snippet)**  
-```
 [+] 192.228.115.3:21 - Login Successful: sysadmin:654321
-```  
-**Evidence:**  
-`service-enumeration/ftp/evidence/ftp_login_s2_output.txt` (save command + wordlist names)  
-**Caution:** brute-force may lock accounts / trigger IDS.
 
----
+[+] demo.ine.local:21 - scanned 1 of 1 hosts (100% complete)
+[+] Auxiliary module execution completed
 
-### anonymous — Test anonymous login
-**Module**
-```
-auxiliary/scanner/ftp/anonymous
-```
-
-**What it does:** attempts `anonymous` login and may list directories.  
-**Typical snippet**  
-```
-[+] demo.ine.local:21 - anonymous login allowed (read-only)
-```  
-**If write allowed:** manually test `put` only in lab and save proof to evidence.  
-**Evidence:** `service-enumeration/ftp/evidence/ftp_anonymous_s3_output.txt`
-
----
-
-### ftp (CLI) — Manual interaction
-**Tool**
-```
-ftp <target>
-# interactive commands (ls, get, put, cd)
-```
-
-**Record session log to:** `service-enumeration/ftp/evidence/ftp_cli_session_<date>.txt`  
-**Example session**
-```
-Name (demo.ine.local:user): sysadmin
+Connected to demo.ine.local.
+220 (ProFTPD 1.3.5a)
+Name (demo.ine.local:root): sysadmin
+331 Please specify the password.
+Password:
 230 User sysadmin logged in
-ftp> ls
-ftp> get config.php
-ftp> quit
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp>
 ```
 
----
-
-## ✅ Final checklist (FTP enumeration)
-- [ ] Save raw module output and command history to `service-enumeration/ftp/evidence/`.  
-- [ ] Store screenshots in `service-enumeration/ftp/screenshots/`.  
-- [ ] Note valid credentials only in local evidence (never commit).  
-- [ ] Create `service-enumeration/ftp/ftp-cheatsheet.md` (1-page) with key commands.  
-- [ ] Export flashcards CSV: `service-enumeration/ftp/ftp-flashcards.csv`.  
-- [ ] Add follow-ups to `service-enumeration/ftp/followups.md` (convert to GitHub issues).
+### Short analysis
+- `ProFTPD 1.3.5a` detected. Check known issues for that version.  
+- Found valid credentials `sysadmin:654321`. Use them to access the FTP service.  
+- Anonymous login appears allowed on this host. If anonymous is allowed then attacker may list or upload files depending on permissions.  
+- Next steps: list files (`ls`), download interesting files (`get <file>`), check for writable directories, and search for sensitive files. Record evidence and timestamps.
