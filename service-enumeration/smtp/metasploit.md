@@ -1,200 +1,284 @@
-# 📧 Metasploit - SMTP Enumeration Modules
+# Metasploit - SMTP Enumeration Modules (Detailed)
 
-This file explains useful **Metasploit auxiliary modules** for SMTP service enumeration.
+**Path:** `service-enumeration/smtp/metasploit.md`
 
----
+## Purpose
+Detailed notes for Metasploit auxiliary modules used to enumerate SMTP services.  
+Use this file to identify server software, find valid users, test relay behavior, discover domain info, and collect evidence for follow-up testing.
 
-## 🎯 Purpose
+## Where to save
+`service-enumeration/smtp/metasploit.md`
 
-These modules help you:
-- Detect SMTP server software and version  
-- Enumerate valid SMTP users (VRFY/EXPN/RCPT checks)  
-- Check for open relay behavior and relay abuse possibilities  
-- Enumerate NTLM domain information via SMTP (if supported)  
-- Aggregate findings for follow-up credential or configuration testing  
-
----
-
-## 🗂️ SMTP Enumeration Modules Summary
-
-| #  | Module                                 | What it Does                                      |
-|----|----------------------------------------|---------------------------------------------------|
-| 1  | auxiliary/scanner/smtp/smtp_version    | Detect SMTP server software/version (banner)      |
-| 2  | auxiliary/scanner/smtp/smtp_enum       | Enumerate users via VRFY/EXPN/RCPT methods        |
-| 3  | auxiliary/scanner/smtp/smtp_relay      | Test for open relay / relay acceptance behavior   |
-| 4  | auxiliary/scanner/smtp/smtp_ntlm_domain| Attempt to enumerate NTLM/Windows domain via SMTP |
-| 5  | auxiliary/scanner/smtp/smtp_vrfy       | Focused VRFY checks (if present in framework)     |
+## Key modules / usage
+- `auxiliary/scanner/smtp/smtp_version` — read banner and detect MTA.
+- `auxiliary/scanner/smtp/smtp_enum` — enumerate users using VRFY/EXPN/RCPT checks.
+- `auxiliary/scanner/smtp/smtp_relay` — test for open relay behavior.
+- `auxiliary/scanner/smtp/smtp_ntlm_domain` — attempt NTLM domain discovery via SMTP.
+- `auxiliary/scanner/smtp/smtp_vrfy` — focused VRFY checks (if present).
+- CLI tools for manual checks: `telnet`, `openssl s_client`, `smtp-user-enum`.
 
 ---
 
-## 1️⃣ Detect SMTP Version / Banner
-
-**Module**
+## Quick examples
 ```bash
-auxiliary/scanner/smtp/smtp_version
-```
+# Start msfconsole
+msfconsole -q
 
-**Command**
-```bash
+# Banner / version
 use auxiliary/scanner/smtp/smtp_version
 set RHOSTS demo.ine.local
 run
-```
 
-📸 **Sample Output:**
-```
-[*] 192.253.225.3:25 - Banner: 220 openmailbox.xyz ESMTP Postfix: Welcome to our mail server.
-[*] demo.ine.local:25 - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-```
-
-🔍 **Interpretation:**
-- Banner reveals **Postfix** as the MTA and the hostname `openmailbox.xyz`.
-- Useful to pick version-specific checks or exploits and understand mail routing.
-- If STARTTLS is advertised, consider using encrypted sessions for further manual checks.
-
----
-
-## 2️⃣ SMTP User Enumeration (smtp_enum)
-
-**Module**
-```bash
-auxiliary/scanner/smtp/smtp_enum
-```
-
-**Command**
-```bash
+# User enumeration
 use auxiliary/scanner/smtp/smtp_enum
 set RHOSTS demo.ine.local
-set USER_FILE /path/to/userlist.txt
-set THREADS 5             # optional: speed up enumeration
+set USER_FILE /path/to/users.txt
 run
-```
 
-📸 **Sample Output:** (combined from lab outputs)
-```
-[*] 192.253.225.3:25 - 192.253.225.3:25 Banner: 220 openmailbox.xyz ESMTP Postfix: Welcome to our mail server.
-[+] 192.253.225.3:25 - Users found: _apt, admin, administrator, backup, bin, daemon, games, gnats, irc, list, lp, mail, man, news, nobody, postfix, postmaster, proxy, sync, sys, uucp, www-data
-[*] demo.ine.local:25 - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-```
-
-🔍 **Interpretation:**
-- Discovers **system/service accounts** and common admin accounts (e.g., `admin`, `postmaster`, `www-data`).
-- An empty entry in results can be an artifact; re-check with a focused test.
-- Correlate with `smtp-user-enum` and manual `VRFY` to validate results.
-
-### 📂 Next Steps After Finding Users
-- Try `RCPT TO` checks or cautious password guessing against allowed auth mechanisms (only on authorized engagements).
-- Note service accounts like `www-data` — useful for web-related post-exploitation paths.
-
----
-
-## 3️⃣ SMTP Open Relay Testing (smtp_relay)
-
-**Module**
-```bash
-auxiliary/scanner/smtp/smtp_relay
-```
-
-**Command**
-```bash
+# Relay test
 use auxiliary/scanner/smtp/smtp_relay
 set RHOSTS demo.ine.local
 run
-```
 
-📸 **Sample Output:** (example)
-```
-[*] 192.253.225.3:25 - Testing relay for a list of combinations...
-[!] 192.253.225.3:25 - Server accepted relay for <attacker@evil.com> -> <victim@external.com> (OPEN RELAY)
-[*] demo.ine.local:25 - Scanned 1 of 1 hosts (100% complete)
-```
-
-🔍 **Interpretation:**
-- If the server accepts relay for arbitrary external recipients → it's an **open relay** and can be abused for spam or phishing.
-- Relay findings are high-impact; report immediately to client/owner and avoid abusing the relay.
-
----
-
-## 4️⃣ SMTP NTLM / Domain Enumeration (smtp_ntlm_domain)
-
-**Module**
-```bash
-auxiliary/scanner/smtp/smtp_ntlm_domain
-```
-
-**Command**
-```bash
+# NTLM/domain discovery
 use auxiliary/scanner/smtp/smtp_ntlm_domain
 set RHOSTS demo.ine.local
 run
 ```
 
-📸 **Sample Output:** (example)
-```
-[*] 192.253.225.3:25 - Attempting NTLM domain discovery...
-[+] 192.253.225.3:25 - Domain: EXISTSE.LOCAL, Domain Controller: dc1.existse.local
-[*] demo.ine.local:25 - Scanned 1 of 1 hosts (100% complete)
-```
+---
 
-🔍 **Interpretation:**
-- If successful, this module can reveal **Windows domain** information which aids lateral movement planning.
-- Use results to correlate with SMB/LDAP enumeration for more domain context.
+## How to read common output
+- `Banner: 220 ...` — MTA greeting. May include software and hostname.  
+- `Users found:` — list of usernames discovered by enumeration. Validate before using.  
+- `Server accepted relay` or similar — indicates open relay behavior. High severity.  
+- `Domain:` — returned domain name or DC host. Useful for follow-up with SMB/LDAP.
 
 ---
 
-## 5️⃣ Focused VRFY Checks (smtp_vrfy)
+## Practical tips
+- Use `smtp_version` before other modules to tailor checks to the MTA (Postfix, Exim, Exchange).  
+- Prefer non-destructive checks first (`smtp_version`, `smtp_enum` with low threads).  
+- Cross-check results with `smtp-user-enum`, manual VRFY via `telnet`, and `openssl s_client -starttls smtp` where STARTTLS is available.  
+- Log raw module output and timestamps (`~/.msf4/loot/` or spool).  
+- Relay testing can cause spam; do not abuse. Report immediately if you find an open relay.
 
-**Note:** Some Metasploit installs provide focused VRFY/EXPN helpers; otherwise `smtp_enum` handles those checks. If `smtp_vrfy` exists in your framework, you can run focused VRFY tests as shown below.
+---
 
-**Command Example (manual VRFY via Telnet)**
+# Module details (expanded)
+
+## auxiliary/scanner/smtp/smtp_version — Detect MTA and banner
+
+**Purpose (short)**  
+Read SMTP greeting banner and basic capabilities.
+
+**Important options**
+- `RHOSTS`, `RPORT` (25), `SSL` / `STARTTLS` handling, `THREADS`.
+
+**What it does**
+- Connects to SMTP port and reads the 220 greeting. Optionally issues EHLO to enumerate advertised extensions (STARTTLS, AUTH methods).
+
+**Typical output**
+```
+[*] 192.253.225.3:25 - Banner: 220 openmailbox.xyz ESMTP Postfix: Welcome to our mail server.
+```
+
+**Interpretation**
+- Banner often reveals MTA name and sometimes version. EHLO output shows supported extensions and STARTTLS support.
+
+**Caveats**
+- Banners can be customized or hidden. Rely on multiple checks.
+
+**Follow-ups**
+- If STARTTLS advertised, use `openssl s_client -starttls smtp -crlf -connect <host>:25` to inspect certs and encrypted behavior.
+- Use detected MTA name to choose targeted tests or known CVEs.
+
+**Remediation**
+- Minimize banner information and require auth where possible. Keep MTA patched.
+
+---
+
+## auxiliary/scanner/smtp/smtp_enum — User enumeration (VRFY/EXPN/RCPT)
+
+**Purpose (short)**  
+Probe for valid mailbox or system accounts using VRFY, EXPN, or RCPT verification methods.
+
+**Important options**
+- `RHOSTS`, `USER_FILE`, `THREADS`, `METHOD` (if module supports selecting VRFY/EXPN/RCPT).
+
+**What it does**
+- Iterates usernames and uses one or more verification methods to determine whether accounts exist.
+
+**Typical output**
+```
+[+] 192.253.225.3:25 - Users found: admin, postmaster, www-data, backup
+```
+
+**Interpretation**
+- Found usernames should be validated. System accounts often present. Use results to build credential lists.
+
+**Caveats**
+- Modern MTAs often disable VRFY/EXPN. RCPT TO checks may still reveal existence via different responses.
+- False positives and rate-limiting possible.
+
+**Follow-ups**
+- Re-validate via manual `VRFY` or `RCPT TO` in a controlled session. Cross-check with other sources (LDAP, web userlists).
+
+**Remediation**
+- Disable VRFY/EXPN. Configure uniform responses to prevent account disclosure. Rate-limit RCPT attempts.
+
+---
+
+## auxiliary/scanner/smtp/smtp_relay — Open relay testing
+
+**Purpose (short)**  
+Test whether the MTA will relay mail from arbitrary senders to external recipients.
+
+**Important options**
+- `RHOSTS`, `FROM` and `TO` test lists, `THREADS`.
+
+**What it does**
+- Attempts to submit mail relay sequences and detects whether the server accepts relaying to external domains.
+
+**Typical output**
+```
+[!] Server accepted relay for <attacker@evil.com> -> <victim@external.com> (OPEN RELAY)
+```
+
+**Interpretation**
+- Open relay confirmed. High impact. Immediate remediation and notification required.
+
+**Caveats**
+- Some MTAs accept then reject later. Verify end-to-end if permitted.
+
+**Follow-ups**
+- Report and disable open relay. Check mailserver configuration (relay restrictions, TLS, auth requirements).
+
+**Remediation**
+- Restrict relaying to authenticated users and trusted networks. Apply connection controls and RBLs.
+
+---
+
+## auxiliary/scanner/smtp/smtp_ntlm_domain — NTLM / Domain discovery via SMTP
+
+**Purpose (short)**  
+Attempt to gather NTLM/domain info from MTAs that expose Windows auth/NTLM features or negotiate NTLM responses.
+
+**Important options**
+- `RHOSTS`, `THREADS`.
+
+**What it does**
+- Initiates auth sequences or inspects EHLO/advertised capabilities to find domain controller names, domain names, or NTLM data.
+
+**Typical output**
+```
+[+] 192.253.225.3:25 - Domain: EXISTSE.LOCAL, Domain Controller: dc1.existse.local
+```
+
+**Interpretation**
+- Reveals AD domain and DC names. Useful to correlate with SMB/LDAP enumeration.
+
+**Caveats**
+- Not all MTAs expose NTLM info. Some may require auth attempts to trigger responses.
+
+**Follow-ups**
+- Use SMB and LDAP enumeration to verify and expand domain context.
+
+**Remediation**
+- Avoid exposing domain controller hostnames in publicly visible services and require secured auth.
+
+---
+
+## auxiliary/scanner/smtp/smtp_vrfy — Focused VRFY checks
+
+**Purpose (short)**  
+Run targeted VRFY checks where supported. Some Metasploit builds separate this module.
+
+**What it does**
+- Sends VRFY commands for specific usernames and records responses.
+
+**Typical manual VRFY example**
 ```bash
 telnet demo.ine.local 25
-HELO attacker.xyz
 EHLO attacker.xyz
-VRFY www-data
 VRFY admin
 ```
-
-✅ **Response Example:**
+**Response example**
 ```
-252 2.0.0 <www-data> exists
-250 2.1.5 <admin> exists
+252 2.0.0 <admin> exists
 ```
 
-🔍 **Interpretation:**
-- `VRFY` confirms if a username exists; `EXPN` may expand mailing lists to show members.
-- If VRFY is disabled, consider `RCPT TO` checks during an SMTP transaction.
+**Interpretation**
+- Indicates the account exists.
+
+**Follow-ups**
+- Add validated usernames to credential lists for cautious auth testing.
+
+**Remediation**
+- Disable VRFY and standardize responses to prevent user enumeration.
 
 ---
 
-## 🔎 Key Findings (from lab examples)
+## Manual checks and supporting tools
 
-- **Banner:** `220 openmailbox.xyz ESMTP Postfix` — identifies the mail server software.  
-- **Discovered users:** `_apt, admin, administrator, backup, bin, daemon, games, gnats, irc, list, lp, mail, man, news, nobody, postfix, postmaster, proxy, sync, sys, uucp, www-data` — mix of system and admin/service accounts.  
-- **High-impact issues to look for:** open relay, exposed admin users, domain info leakage via NTLM.
-
----
-
-## ⚠️ Notes & Best Practices
-
-- **Validate with multiple tools:** Cross-check Metasploit results with `smtp-user-enum` and manual `telnet`/`openssl s_client` checks.  
-- **Use conservative threading/timeouts:** `set THREADS` can speed scans but may trigger IDS/IPS or cause stability issues.  
-- **Respect rules of engagement:** Only test systems you are authorized to scan. SMTP tests (relay checks, VRFY) can be disruptive or trigger blacklisting.  
-- **Log and store loot:** Metasploit stores outputs in loot files under `~/.msf4/loot/`; keep these for reporting.  
-
----
-
-## ✅ Recommended file name & location in your repo
-
-```
-service-enumeration/smtp/metasploit.md
+### telnet / openssl s_client
+- Manual interaction helps validate automated results.
+```bash
+telnet demo.ine.local 25
+# or for STARTTLS
+openssl s_client -starttls smtp -crlf -connect demo.ine.local:25
 ```
 
+### smtp-user-enum
+- External tool specialized for SMTP user enumeration. Use for cross-checking.
+
 ---
 
-## 🔁 Suggested Next Steps
-- Cross-check usernames with `smtp-user-enum` results and manual VRFY tests.
-- If domain info found, continue with SMB/LDAP enumeration under `service-enumeration/smb` and `service-enumeration/ldap`.
-- Add any validated usernames to your credential list for safe, authorized authentication testing later.
+## INE lab example (complete scenario)
+
+### Input
+```bash
+# Banner
+use auxiliary/scanner/smtp/smtp_version
+set RHOSTS demo.ine.local
+run
+
+# User enumeration
+use auxiliary/scanner/smtp/smtp_enum
+set RHOSTS demo.ine.local
+set USER_FILE /usr/share/wordlists/common_users.txt
+run
+
+# Relay test
+use auxiliary/scanner/smtp/smtp_relay
+set RHOSTS demo.ine.local
+run
+
+# NTLM/domain
+use auxiliary/scanner/smtp/smtp_ntlm_domain
+set RHOSTS demo.ine.local
+run
+```
+
+### Output (aggregated)
+```
+[+] Banner: 220 openmailbox.xyz ESMTP Postfix: Welcome to our mail server.
+[+] Users found: _apt, admin, postmaster, www-data
+[!] Server accepted relay for <attacker@evil.com> -> <victim@external.com> (OPEN RELAY)
+[+] Domain: EXISTSE.LOCAL, DC: dc1.existse.local
+```
+
+### Short analysis and next steps
+- MTA: Postfix identified. STARTTLS should be checked and certificates inspected.
+- Users found should be validated and added to credential lists for authorized tests.
+- Open relay is critical. Stop and report immediately.
+- Domain discovery gives direction to SMB/LDAP enumeration. Correlate hostnames and test internal services.
+
+---
+
+## Final checklist (report)
+- [ ] Save msfconsole raw output and loot files.
+- [ ] Record RHOSTS, module options, and timestamps.
+- [ ] Validate discovered users using manual VRFY/RCPT tests.
+- [ ] If open relay found, notify owner and provide reproduction steps for patching.
+- [ ] Correlate domain info with SMB/LDAP scans for follow-up.
