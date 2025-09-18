@@ -1,740 +1,575 @@
-# 🚪 Comprehensive Nmap Guide - Port Scanning & Service Enumeration
+# 🚪 Nmap Guide - Port Scanning
 
-Nmap is one of the most powerful tools used for **port scanning** and **service detection** in penetration testing and network security assessments.
-
----
-
-## 🔎 Basic Scan Types
-
-### Core Scanning Methods
-
-- **TCP Connect Scan (-sT)**  
-  - Completes the full 3-way handshake.  
-  - Works without root privileges.  
-  - Easier to detect by firewalls/IDS.  
-
-- **SYN Scan (-sS)**  
-  - Half-open scan (does not complete the handshake).  
-  - Faster and stealthier.  
-  - Requires root privileges.  
-
-- **UDP Scan (-sU)**  
-  - Scans UDP ports.  
-  - Slower than TCP scans.  
-  - Useful for services like DNS (53), SNMP (161), DHCP (67/68).  
-
-### 📊 Scan Type Comparison Table
-
-| Scan Type | Flag | Pros | Cons |
-|-----------|------|------|------|
-| **TCP Connect** | `-sT` | Works without root, reliable results | Slow, easy to detect by IDS/IPS |
-| **SYN Scan** | `-sS` | Fast, stealthy, less detectable | Needs root privileges |
-| **UDP Scan** | `-sU` | Finds UDP services (DNS, SNMP, DHCP) | Very slow, many false negatives, often blocked by firewalls |
+Nmap is the most powerful tool for **port scanning** in penetration testing and network security assessments. This guide focuses exclusively on mastering port scanning techniques.
 
 ---
 
-## 🔧 Basic Port Scanning Commands
+## 🔎 Core Port Scanning Methods
 
-### Essential Port Scanning
+### TCP Scanning Techniques
+
+#### **TCP Connect Scan (-sT)**
+- **Description**: Completes the full TCP 3-way handshake
+- **Privileges**: Works without root privileges
+- **Stealth**: Easy to detect by firewalls/IDS
+- **Speed**: Slower due to full connection establishment
+- **Use Case**: When root access is not available
+
 ```bash
-# Scan default 1000 ports
-nmap <target-ip>
+# Basic TCP Connect scan
+nmap -sT <target-ip>
 
-# Scan specific port
+# TCP Connect on specific ports
+nmap -sT -p 80,443 <target-ip>
+```
+
+#### **SYN Scan (-sS) - "Stealth Scan"**
+- **Description**: Half-open scan (does not complete handshake)
+- **Privileges**: Requires root privileges
+- **Stealth**: Faster and more stealthy
+- **Speed**: Much faster than TCP Connect
+- **Use Case**: Default choice for penetration testing
+
+```bash
+# Basic SYN scan (requires root)
+sudo nmap -sS <target-ip>
+
+# SYN scan with timing optimization
+sudo nmap -sS -T4 <target-ip>
+```
+
+#### **TCP Null/FIN/Xmas Scans**
+Advanced stealth scanning techniques:
+
+```bash
+# NULL scan - sends packet with no flags
+nmap -sN <target-ip>
+
+# FIN scan - sends packet with FIN flag
+nmap -sF <target-ip>
+
+# Xmas scan - sends packet with FIN, PSH, and URG flags
+nmap -sX <target-ip>
+```
+
+### UDP Port Scanning
+
+#### **UDP Scan (-sU)**
+- **Description**: Scans UDP ports for connectionless services
+- **Speed**: Very slow compared to TCP scans
+- **Challenge**: Many false negatives due to UDP nature
+- **Services**: DNS (53), SNMP (161), DHCP (67/68), TFTP (69)
+
+```bash
+# Basic UDP scan
+sudo nmap -sU <target-ip>
+
+# UDP scan on common ports
+sudo nmap -sU -p 53,161,162,69,123 <target-ip>
+
+# Fast UDP scan (top ports only)
+sudo nmap -sU --top-ports 100 <target-ip>
+
+# Combined TCP SYN + UDP scan
+sudo nmap -sS -sU -p- <target-ip>
+```
+
+### 📊 Scan Type Comparison
+
+| Scan Type | Flag | Speed | Stealth | Root Required | Best For |
+|-----------|------|-------|---------|---------------|-----------|
+| **TCP Connect** | `-sT` | Slow | Low | No | Limited privilege environments |
+| **SYN Scan** | `-sS` | Fast | High | Yes | General port scanning |
+| **UDP Scan** | `-sU` | Very Slow | Medium | Yes | UDP service discovery |
+| **NULL Scan** | `-sN` | Medium | Very High | Yes | Firewall evasion |
+| **FIN Scan** | `-sF` | Medium | Very High | Yes | IDS evasion |
+| **Xmas Scan** | `-sX` | Medium | Very High | Yes | Advanced stealth |
+
+---
+
+## 🔧 Port Specification Techniques
+
+### Basic Port Selection
+```bash
+# Scan single port
 nmap -p 80 <target-ip>
 
-# Scan multiple ports
-nmap -p 21,22,80 <target-ip>
+# Scan multiple specific ports
+nmap -p 21,22,80,443 <target-ip>
+
+# Scan port range
+nmap -p 1-1000 <target-ip>
 
 # Scan all 65535 ports
 nmap -p- <target-ip>
+```
 
-# Scan top ports
+### Advanced Port Selection
+```bash
+# Scan top 100 most common ports
 nmap --top-ports 100 <target-ip>
+
+# Scan top 1000 ports (default behavior)
 nmap --top-ports 1000 <target-ip>
+
+# Exclude specific ports
+nmap --exclude-ports 80,443 <target-ip>
+
+# TCP and UDP ports together
+nmap -p T:80,443,U:53,161 <target-ip>
 ```
 
-### Host Discovery
+### Protocol-Specific Port Scanning
 ```bash
-# Ping scan only (discover live hosts)
-nmap -sn <network-range>
+# TCP ports only
+nmap -p T:1-65535 <target-ip>
 
-# Skip host discovery (assume host is up)
-nmap -Pn <target>
+# UDP ports only  
+nmap -p U:1-65535 <target-ip>
 
-# TCP SYN discovery on specific ports
-nmap -PS80,443 <network>
-
-# UDP discovery
-nmap -PU53 <network>
+# Mixed TCP and UDP
+nmap -p T:80,443,U:53,161,162 <target-ip>
 ```
 
 ---
 
-## 🔍 Service & Version Detection
+## 🎯 Common Service Port Ranges
 
-### Version Detection Commands
+### Web Services
 ```bash
-# Detect running services and versions
-nmap -sV <target-ip>
+# Standard web ports
+nmap -p 80,443 <target-ip>
 
-# Aggressive scan (OS, services, scripts, traceroute)
-nmap -A <target-ip>
+# Extended web services
+nmap -p 80,443,8080,8443,8000,8888,9000,9443 <target-ip>
 
-# OS detection
-nmap -O <target-ip>
-
-# Service detection with faster timing
-nmap -sV -T4 <target-ip>
+# Alternative HTTP ports
+nmap -p 81,82,83,8001,8002,8008,8080,8081,8082,8083 <target-ip>
 ```
 
-### ⚔️ SYN Scan (-sS) vs Version Detection (-sV)
+### Windows Services
+```bash
+# Essential Windows ports
+nmap -p 135,139,445 <target-ip>
 
-#### 📋 Command Differences
+# Windows remote access
+nmap -p 3389,5985,5986 <target-ip>
 
-| Command | Feature | Description |
-|---------|---------|-------------|
-| `nmap -sV <target-ip>` | **Service Version Detection** | Scans open ports and tries to detect the version of the service. |
-| `nmap -sS -sV <target-ip>` | **SYN Scan + Version Detection** | Adds SYN scan (half-open TCP scan) with version detection. Faster and stealthier. |
-
-#### ✅ Switch Details
-
-**`-sV`**
-- Detects services running on open ports.  
-- Shows versions like `Apache 2.4.49`, `OpenSSH 7.6`, etc.  
-- Useful for finding possible vulnerabilities.  
-
-**`-sS`**
-- Uses **SYN scan** (*half-open scan*).  
-- Does not complete the **three-way handshake**:  
-  - If reply is **SYN-ACK** → Port is open.  
-  - If reply is **RST** → Port is closed.  
-- Faster and stealthier than a full connect scan.  
-- Requires root privileges.
-
-#### 📈 Visual Comparison: TCP Connect vs SYN Scan
-
-**🔗 TCP Connect Scan (-sT)**
-```
-Client                      Server
-   | ----- SYN -----------> |
-   | <---- SYN/ACK -------- |
-   | ----- ACK -----------> |   ✅ Full 3-way handshake
-   |                        |
-   | ----- RST -----------> |   ❌ Close connection
+# Complete Windows assessment
+nmap -p 135,139,445,3389,5985,5986,1433,1434 <target-ip>
 ```
 
-**⚡ SYN Scan (-sS)**
+### Database Services
+```bash
+# Common database ports
+nmap -p 1433,3306,5432,1521,27017 <target-ip>
+
+# Extended database scanning
+nmap -p 1433,1434,3306,5432,1521,1522,27017,27018,6379 <target-ip>
 ```
-Client                      Server
-   | ----- SYN -----------> |
-   | <---- SYN/ACK -------- |
-   | ----- RST -----------> |   ⭕ Half-open connection
+
+### Network Infrastructure
+```bash
+# Network services
+nmap -p 53,67,68,161,162,514,123 <target-ip>
+
+# Network management
+nmap -p 161,162,514,199,830 <target-ip>
+```
+
+### Mail Services  
+```bash
+# Email ports
+nmap -p 25,110,143,993,995,587 <target-ip>
+
+# Extended mail services
+nmap -p 25,110,143,993,995,587,465,2525 <target-ip>
+```
+
+### Remote Access Services
+```bash
+# SSH and Telnet
+nmap -p 22,23 <target-ip>
+
+# VNC services
+nmap -p 5900,5901,5902 <target-ip>
+
+# Remote desktop protocols
+nmap -p 3389,1494,2598 <target-ip>
 ```
 
 ---
 
-## 📜 NSE Scripts for Enhanced Enumeration
+## 🚀 Performance Optimization
 
-NSE (Nmap Scripting Engine) provides powerful scripts for deeper service enumeration:
+### Timing Templates
+Control scan speed and detection avoidance:
 
-### HTTP Service Enumeration
-```bash
-# Basic HTTP enumeration - finds directories like /webdav
-nmap --script http-enum -sV -p 80 demo.ine.local
-
-# Find directories, headers, and HTTP methods
-nmap --script http-enum,http-headers,http-methods -p 80,443 <target>
-
-# Check for common web vulnerabilities
-nmap --script http-vuln-* -p 80,443 <target>
-
-# HTTP title and server information
-nmap --script http-title,http-server-header -p 80,443 <target>
-
-# All HTTP scripts
-nmap --script http-* -p 80,443 <target>
-```
-
-**Example Output from WebDAV Lab:**
-```
-PORT   STATE SERVICE VERSION
-80/tcp open  http    Microsoft IIS httpd 10.0
-| http-enum: 
-|   /webdav/: Potentially interesting folder (401 Unauthorized)
-|_  /admin/: Potentially interesting folder
-|_http-server-header: Microsoft-IIS/10.0
-```
-
-### SMB Enumeration
-```bash
-# SMB share enumeration
-nmap --script smb-enum-shares -p 139,445 <target>
-
-# SMB vulnerabilities (EternalBlue, etc.)
-nmap --script smb-vuln-* -p 139,445 <target>
-
-# SMB OS discovery
-nmap --script smb-os-discovery -p 139,445 <target>
-
-# All SMB scripts
-nmap --script smb-* -p 139,445 <target>
-```
-
-### Specialized Web Service Discovery
-
-#### WebDAV Discovery and Enumeration
-
-**WebDAV (Web Distributed Authoring and Versioning) Testing with Nmap**
-
-**Basic WebDAV Discovery**
-```bash
-# Discover WebDAV-enabled directories
-nmap --script http-enum -sV -p 80,443 <target>
-
-# Specific WebDAV scanning
-nmap --script http-webdav-scan -p 80,443 <target>
-
-# HTTP methods enumeration
-nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target>
-
-# Complete WebDAV assessment
-nmap --script http-webdav-scan,http-methods,http-enum -p 80,443 <target>
-```
-
-**Real Lab Example: Windows IIS WebDAV Discovery**
-
-**Scenario:** Discovering WebDAV service on Windows IIS Server
-- **Target:** demo.ine.local (10.0.31.40)
-- **Service:** Microsoft IIS httpd 10.0
-- **Objective:** Identify WebDAV capabilities and directory structure
-
-**Step 1: Initial Port Scan**
-```bash
-nmap demo.ine.local
-```
-
-**Expected Lab Output:**
-```
-Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-07-10 09:36 IST
-Nmap scan report for demo.ine.local (10.0.31.40)
-Host is up (0.0027s latency).
-Not shown: 990 closed tcp ports (reset)
-PORT     STATE SERVICE
-80/tcp   open  http
-135/tcp  open  msrpc
-139/tcp  open  netbios-ssn
-445/tcp  open  microsoft-ds
-3306/tcp open  mysql
-3389/tcp open  ms-wbt-server
-
-Nmap done: 1 IP address (1 host up) scanned in 1.44 seconds
-```
-
-**Step 2: HTTP Service Enumeration**
-```bash
-nmap --script http-enum -sV -p 80 demo.ine.local
-```
-
-**Expected Lab Output:**
-```
-Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-07-10 09:37 IST
-Nmap scan report for demo.ine.local (10.0.31.40)
-Host is up (0.0026s latency).
-
-PORT    STATE SERVICE VERSION
-80/tcp open  http    Microsoft IIS httpd 10.0
-| http-enum:
-|_  /webdav/: Potentially interesting folder (401 Unauthorized)
-|_http-server-header: Microsoft-IIS/10.0
-Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
-
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 24.57 seconds
-```
-
-**Analysis:** 
-- **WebDAV Directory Found:** `/webdav/` directory discovered with 401 Unauthorized status
-- **Authentication Required:** HTTP Basic authentication needed for access
-- **Server Platform:** Microsoft IIS 10.0 on Windows
-- **Potential Vulnerability:** WebDAV service may allow file upload if credentials obtained
-
-**Step 3: WebDAV-Specific Scanning**
-```bash
-nmap --script http-webdav-scan -p 80 demo.ine.local
-```
-
-**Expected Results:**
-- Confirms WebDAV service availability
-- Identifies supported HTTP methods (PUT, MOVE, COPY, DELETE)
-- Reveals authentication requirements
-
-**Additional WebDAV Detection Scripts**
-```bash
-# Check for common WebDAV paths with detailed enumeration
-nmap --script http-enum --script-args http-enum.displayall -p 80 <target>
-
-# Test HTTP methods on specific paths
-nmap --script http-methods --script-args http-methods.url-path=/webdav/,http-methods.test-all -p 80 <target>
-
-# Comprehensive WebDAV and HTTP enumeration
-nmap --script http-webdav-scan,http-methods,http-enum,http-title,http-server-header -p 80,443 <target>
-```
-
-**Common WebDAV Paths to Test**
-```bash
-# Test multiple potential WebDAV endpoints
-nmap --script http-enum --script-args http-enum.basepath=/webdav/ -p 80 <target>
-nmap --script http-enum --script-args http-enum.basepath=/dav/ -p 80 <target>
-nmap --script http-enum --script-args http-enum.basepath=/uploads/ -p 80 <target>
-nmap --script http-enum --script-args http-enum.basepath=/_vti_bin/ -p 80 <target>
-```
-
-**Common WebDAV Locations:**
-- `/webdav/` - Standard WebDAV directory
-- `/dav/` - Alternative WebDAV path
-- `/uploads/` - Upload directory with WebDAV
-- `/_vti_bin/` - Microsoft FrontPage WebDAV
-- `/exchange/` - Exchange WebDAV
-- `/public/` - Public WebDAV access
-
-**eJPT Integration Points**
-
-**WebDAV Discovery in eJPT Context:**
-1. **Service Enumeration:** Use nmap to discover WebDAV services
-2. **Authentication Testing:** Identify authentication requirements
-3. **Directory Discovery:** Find WebDAV-enabled paths
-4. **Follow-up Testing:** Use davtest and cadaver for exploitation
-
-**Critical Commands for eJPT:**
-```bash
-# Primary discovery
-nmap --script http-enum -sV -p 80 <target>
-
-# WebDAV confirmation  
-nmap --script http-webdav-scan -p 80 <target>
-
-# Methods enumeration
-nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target>
-
-# Comprehensive WebDAV assessment
-nmap --script http-webdav-scan,http-methods,http-enum -p 80,443 <target>
-```
-
-**Integration with Other Tools:**
-- **Discovery:** nmap → identifies WebDAV service
-- **Assessment:** davtest → tests upload capabilities  
-- **Exploitation:** cadaver → manual file upload and management
-- **Access:** web browser → web shell execution
-
-**Complete WebDAV Assessment Workflow:**
-```bash
-# 1. Initial discovery
-nmap --script http-enum -sV -p 80,443 <target>
-
-# 2. WebDAV confirmation  
-nmap --script http-webdav-scan -p 80,443 <target>
-
-# 3. Method testing
-nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target>
-
-# 4. Follow-up with specialized tools
-davtest -url http://<target>/webdav/
-cadaver http://<target>/webdav/
-```
-
-### Other Common Service Scripts
-```bash
-# FTP anonymous login check
-nmap --script ftp-anon -p 21 <target>
-
-# FTP bounce attack check
-nmap --script ftp-bounce -p 21 <target>
-
-# SSH enumeration
-nmap --script ssh2-enum-algos -p 22 <target>
-
-# DNS zone transfer
-nmap --script dns-zone-transfer --script-args dns-zone-transfer.domain=<domain> -p 53 <target>
-
-# SMTP enumeration
-nmap --script smtp-enum-users -p 25 <target>
-
-# MySQL enumeration
-nmap --script mysql-info -p 3306 <target>
-```
-
----
-
-## 🚀 Timing and Performance Options
-
-Control scan speed and stealth with timing templates:
-
-| Template | Flag | Speed | Detection Risk | Use Case |
-|----------|------|-------|----------------|----------|
-| **Paranoid** | `-T0` | Very Slow | Very Low | Maximum stealth, avoids IDS |
-| **Sneaky** | `-T1` | Slow | Low | Avoid detection, careful enumeration |
-| **Polite** | `-T2` | Moderate | Medium | Normal enumeration, avoid overwhelming target |
-| **Normal** | `-T3` | Normal | Medium | Default setting, general scanning |
-| **Aggressive** | `-T4` | Fast | High | Lab/CTF environments, time-sensitive tests |
-| **Insane** | `-T5` | Very Fast | Very High | Speed over accuracy, may miss results |
+| Template | Flag | Speed | Stealth | Use Case |
+|----------|------|-------|---------|----------|
+| **Paranoid** | `-T0` | Extremely Slow | Maximum | IDS avoidance |
+| **Sneaky** | `-T1` | Very Slow | High | Stealth required |
+| **Polite** | `-T2` | Slow | Medium | Production systems |
+| **Normal** | `-T3` | Normal | Medium | General purpose |
+| **Aggressive** | `-T4` | Fast | Low | Lab environments |
+| **Insane** | `-T5` | Very Fast | None | Speed over accuracy |
 
 ### Timing Examples
 ```bash
-# Fast scan for lab environments
-nmap -T4 -sS -sV -p- <target>
+# Maximum stealth (very slow)
+nmap -T0 -sS -p 80,443 <target-ip>
 
-# Stealth scan for production systems
-nmap -T1 -sS -p 80,443 <target>
+# Production-safe scanning
+nmap -T2 -sS --top-ports 1000 <target-ip>
 
-# Balanced approach
-nmap -T3 -sS -sV --top-ports 1000 <target>
+# Fast lab scanning
+nmap -T4 -sS -p- <target-ip>
+
+# Speed over everything (may miss ports)
+nmap -T5 -sS -F <target-ip>
+```
+
+### Advanced Performance Tuning
+```bash
+# Control parallel probes
+nmap --min-parallelism 10 --max-parallelism 50 <target-ip>
+
+# Control send rate
+nmap --min-rate 100 --max-rate 1000 <target-ip>
+
+# Optimize retries
+nmap --max-retries 2 <target-ip>
+
+# Control timeout
+nmap --host-timeout 5m <target-ip>
+
+# Skip DNS resolution for speed
+nmap -n <target-ip>
 ```
 
 ---
 
-## 💾 Output Formats & Saving Results
+## 🛡️ Host Discovery vs Port Scanning
 
-Save Nmap scan results in various formats for reporting, analysis, or automation.
-
-### 📝 Output Format Options
-
-| Format | Flag | Use Case | Description |
-|--------|------|----------|-------------|
-| **Normal** | `-oN file.txt` | Human readable | Standard text output |
-| **XML** | `-oX file.xml` | Automation/parsing | Structured data format |
-| **Grepable** | `-oG file.gnmap` | Text processing | Grep-friendly format |
-| **All formats** | `-oA basename` | Complete documentation | Creates .nmap, .xml, .gnmap files |
-
-### Output Examples
+### Host Discovery Methods
 ```bash
-# Save in normal format
-nmap -sV -oN scan_results.txt demo.ine.local
-
-# Save in XML format (good for tools integration)
-nmap -sV -Pn -oX myscan.xml demo.ine.local
-
-# Save in all formats at once
-nmap -sS -sV -sC -oA comprehensive_scan demo.ine.local
-
-# Append results to existing file
-nmap -sS -sV --append-output -oN existing_scan.txt <target>
-```
-
-### 🔎 Working with Results
-You can later process results with:
-- `xsltproc` (convert XML to HTML)
-- Python `xml.etree.ElementTree`
-- `Nmap Parser` (Python modules)
-- Import into vulnerability scanners like OpenVAS
-- Parse with grep/awk for specific information
-
----
-
-## 🎯 Common Scan Combinations
-
-### Quick Assessment Scans
-```bash
-# Fast initial assessment
-nmap -sS -T4 -F <target-ip>
-
-# Quick comprehensive scan
-nmap -sS -sV -sC -T4 <target-ip>
-
-# Top 100 ports
-nmap --top-ports 100 <target-ip>
-```
-
-### Comprehensive Scans
-```bash
-# Full port scan with all information
-nmap -sS -sV -sC -O -p- <target-ip>
-
-# Aggressive comprehensive scan
-nmap -A -T4 -p- <target-ip>
-
-# Script-heavy enumeration
-nmap -sS -sV -sC --script vuln -p- <target-ip>
-```
-
-### Targeted Service Scans
-```bash
-# Web services focus
-nmap -sS -sV --script http-* -p 80,443,8080,8443 <target>
-
-# Windows services focus
-nmap -sS -sV --script smb-*,ms-* -p 135,139,445,3389 <target>
-
-# Database services
-nmap -sS -sV -p 1433,3306,5432,1521 <target>
-```
-
----
-
-## 🧪 Real Lab Examples
-
-Practical examples from penetration testing scenarios:
-
-### Example 1: Network Discovery Phase
-```bash
-# Step 1: Discover live hosts in network
+# Ping sweep (ICMP discovery)
 nmap -sn 192.168.1.0/24
 
-# Step 2: Quick port scan on discovered hosts
-nmap -T4 -F 192.168.1.10
+# TCP SYN discovery
+nmap -sn -PS80,443 192.168.1.0/24
 
-# Step 3: Detailed scan on interesting hosts
-nmap -sS -sV -sC -T4 192.168.1.10
+# UDP discovery
+nmap -sn -PU53 192.168.1.0/24
+
+# Skip host discovery (assume host is up)
+nmap -Pn <target-ip>
+
+# ARP discovery (local network only)
+nmap -sn -PR 192.168.1.0/24
 ```
 
-### Example 2: WebDAV Lab Enumeration (Complete Workflow)
+### When to Skip Host Discovery
 ```bash
-# Step 1: Basic port scan - discovers open ports
-nmap demo.ine.local
+# When ping is blocked
+nmap -Pn -sS -p- <target-ip>
 
-# Step 2: Service version detection - identifies IIS and versions
-nmap -sV demo.ine.local
+# For comprehensive scanning
+nmap -Pn -sS -sU --top-ports 1000 <target-ip>
 
-# Step 3: HTTP-specific enumeration - finds /webdav directory
-nmap --script http-enum -sV -p 80 demo.ine.local
-
-# Step 4: Full HTTP enumeration
-nmap --script http-* -p 80 demo.ine.local
+# When targeting specific services
+nmap -Pn -p 80,443,22,21 <target-ip>
 ```
 
-**Expected Output:**
-```
-Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-07-10 09:36 IST
-Nmap scan report for demo.ine.local (10.0.31.40)
-Host is up (0.00027s latency).
-Not shown: 994 closed tcp ports (reset)
-PORT     STATE SERVICE       VERSION
-80/tcp   open  http          Microsoft IIS httpd 10.0
-| http-enum: 
-|   /webdav/: Potentially interesting folder (401 Unauthorized)
-|_  /admin/: Potentially interesting folder
-135/tcp  open  msrpc         Microsoft Windows RPC
-139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
-445/tcp  open  microsoft-ds  Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
-3306/tcp open  mysql         MySQL (unauthorized)
-3389/tcp open  ms-wbt-server Microsoft Terminal Services
-```
+---
 
-### Example 3: Full Network Assessment Workflow
+## 💾 Port Scanning Output & Documentation
+
+### Output Formats
 ```bash
-# Phase 1: Discovery
+# Normal text output
+nmap -sS -p- -oN portscan.txt <target-ip>
+
+# XML output (for tools integration)
+nmap -sS -p- -oX portscan.xml <target-ip>
+
+# Grepable format
+nmap -sS -p- -oG portscan.gnmap <target-ip>
+
+# All formats at once
+nmap -sS -p- -oA comprehensive_portscan <target-ip>
+```
+
+### Interpreting Port States
+```bash
+# Port states in Nmap output:
+# open      - Service is listening
+# closed    - Port is accessible but no service
+# filtered  - Port is blocked by firewall
+# unfiltered - Port is accessible but state unknown
+# open|filtered - Can't determine if open or filtered
+# closed|filtered - Can't determine if closed or filtered
+```
+
+---
+
+## 🧪 Practical Port Scanning Workflows
+
+### Quick Assessment Workflow
+```bash
+# Step 1: Fast initial scan
+nmap -T4 -F <target-ip>
+
+# Step 2: Scan discovered services
+nmap -T4 -p <discovered-ports> <target-ip>
+
+# Step 3: Full port scan if needed
+nmap -T4 -p- <target-ip>
+```
+
+### Comprehensive Assessment
+```bash
+# Phase 1: Network discovery
 nmap -sn 192.168.1.0/24
 
-# Phase 2: Quick enumeration of live hosts
-nmap -sS -T4 --top-ports 1000 <target-list>
+# Phase 2: Quick port scan on live hosts
+nmap -T4 -F --open <target-list>
 
-# Phase 3: Comprehensive scan of interesting hosts
-nmap -sS -sV -sC -O -p- -T4 -oA full_assessment <target-ip>
+# Phase 3: Full TCP port scan
+nmap -sS -T4 -p- --open -oA tcp_scan <target-ip>
 
-# Phase 4: Service-specific enumeration
-nmap --script http-*,smb-*,ftp-* -p 21,80,139,443,445 <target-ip>
+# Phase 4: UDP port scan (selective)
+nmap -sU -T4 --top-ports 100 --open -oA udp_scan <target-ip>
+```
+
+### Stealth Assessment Workflow
+```bash
+# Ultra-stealth approach
+nmap -T1 -sS -f --data-length 25 -p 80,443 <target-ip>
+
+# Multiple stealth techniques combined
+nmap -T1 -sS -f -D RND:10 --source-port 53 -p- <target-ip>
+
+# Null scan for firewall evasion
+nmap -T2 -sN -p- <target-ip>
 ```
 
 ---
 
-## 🎯 Common Port Ranges & Services
+## 🔍 Advanced Port Scanning Techniques
 
-### Standard Port Ranges
-```bash
-# Web services
-nmap -p 80,443,8080,8443,8000,8888 <target>
-
-# Common Windows ports
-nmap -p 135,139,445,3389,5985,5986 <target>
-
-# Database services
-nmap -p 1433,3306,5432,1521,27017 <target>
-
-# Mail services
-nmap -p 25,110,143,993,995,587 <target>
-
-# DNS and network services
-nmap -p 53,67,68,161,162 <target>
-
-# Remote access services
-nmap -p 22,23,3389,5900,5901 <target>
-```
-
-### Service-Specific Scans
-```bash
-# All common services
-nmap -p 21,22,23,25,53,80,110,135,139,143,443,445,993,995,3306,3389,5432 <target>
-
-# Quick web assessment
-nmap -sS -sV --script http-title,http-server-header -p 80,443 <target>
-
-# SMB assessment
-nmap -sS -sV --script smb-os-discovery,smb-enum-shares -p 139,445 <target>
-```
-
----
-
-## 🧠 Advanced Techniques & Tips
-
-### Firewall and IDS Evasion
+### Firewall Evasion
 ```bash
 # Fragment packets
-nmap -f <target>
+nmap -f -sS <target-ip>
 
-# Use decoy IPs
-nmap -D RND:10 <target>
+# Use MTU fragmentation
+nmap --mtu 8 -sS <target-ip>
 
-# Source port specification
-nmap --source-port 53 <target>
+# Decoy scanning
+nmap -D 192.168.1.100,192.168.1.101,ME -sS <target-ip>
 
-# Random host order
-nmap --randomize-hosts <target-list>
+# Random decoys
+nmap -D RND:10 -sS <target-ip>
 
-# Slow timing to avoid detection
-nmap -T1 -sS <target>
+# Source port spoofing
+nmap --source-port 53 -sS <target-ip>
+
+# Idle scan (requires zombie host)
+nmap -sI zombie-ip:probe-port <target-ip>
 ```
 
-### Advanced NSE Usage
+### IDS Evasion Techniques
 ```bash
-# Run all safe scripts
-nmap -sC <target>
+# Very slow timing with randomization
+nmap -T0 --randomize-hosts -sS <target-range>
 
-# Run specific script categories
-nmap --script auth,safe <target>
+# Mixed scan types
+nmap -sS -sF -sN --randomize-hosts <target-ip>
 
-# Run scripts with arguments
-nmap --script http-enum --script-args http-enum.basepath=/admin/ <target>
+# Custom data payloads
+nmap --data-length 200 -sS <target-ip>
 
-# Custom script execution
-nmap --script /usr/share/nmap/scripts/custom-script.nse <target>
+# Bad checksum (some systems ignore)
+nmap --badsum -sS <target-ip>
 ```
 
-### Performance Optimization
+### IPv6 Port Scanning
 ```bash
-# Parallel host scanning
-nmap --min-hostgroup 50 <network>
+# IPv6 address scanning
+nmap -6 -sS <ipv6-address>
 
-# Parallel port scanning
-nmap --min-parallelism 100 <target>
+# IPv6 network discovery
+nmap -6 -sn 2001:db8::/32
 
-# Skip DNS resolution
-nmap -n <target>
-
-# Increase send rate
-nmap --min-rate 1000 <target>
+# IPv6 port scan with timing
+nmap -6 -T4 -sS -p- <ipv6-address>
 ```
 
 ---
 
-## 🎯 eJPT Exam Focus Areas
+## 📊 Port Scanning Best Practices
 
-### Essential Commands for eJPT Certification
+### Scanning Strategy
+1. **Start Fast, Go Deep**: Begin with `-F` or `--top-ports`, then expand
+2. **Document Everything**: Always use `-oA` for complete records
+3. **Consider Impact**: Use appropriate timing for the environment
+4. **Verify Results**: Re-scan interesting ports with different methods
+5. **Combine Techniques**: Mix TCP SYN and UDP scanning
+
+### Common Scanning Patterns
 ```bash
-# Basic enumeration
-nmap -sS -sV -sC <target>
+# Discovery → Quick → Detailed
+nmap -sn <network>                    # Discovery
+nmap -T4 -F <live-hosts>             # Quick assessment  
+nmap -sS -T4 -p- <interesting-hosts>  # Detailed scanning
 
-# HTTP service discovery
-nmap --script http-enum -p 80,443 <target>
+# Stealth progression
+nmap -sS -T2 --top-ports 100 <target>  # Initial stealth
+nmap -sN -T1 -p- <target>              # Deep stealth
+nmap -sF -T1 <open-ports> <target>     # Verification
+```
 
-# Full port scan with comprehensive output
-nmap -sS -sV -p- -oA scan_results <target>
+### Error Handling & Troubleshooting
+```bash
+# When getting "Permission denied"
+sudo nmap -sS <target-ip>
 
-# SMB enumeration
-nmap --script smb-enum-shares -p 139,445 <target>
+# When ports appear closed but shouldn't be
+nmap -sT <target-ip>  # Try TCP Connect
+nmap -Pn <target-ip>  # Skip ping check
 
-# Fast initial assessment
-nmap -sS -T4 -F <target>
+# When scans are too slow
+nmap -T4 --min-rate 1000 <target-ip>
+
+# When getting filtered results
+nmap -sN <target-ip>  # Try NULL scan
+nmap --source-port 53 <target-ip>  # Try source port spoofing
+```
+
+---
+
+## 🎯 eJPT Port Scanning Focus
+
+### Essential Commands for eJPT
+```bash
+# Basic discovery and quick assessment
+nmap -sn <network-range>
+nmap -sS -T4 -F <target-ip>
+
+# Comprehensive port scanning
+nmap -sS -T4 -p- --open <target-ip>
+nmap -sU -T4 --top-ports 100 <target-ip>
+
+# Documentation (crucial for reporting)
+nmap -sS -T4 -p- -oA portscan_results <target-ip>
+
+# Common service ports
+nmap -sS -p 21,22,23,25,53,80,110,135,139,143,443,445,993,995,3306,3389,5432 <target-ip>
+```
+
+### Key Port Scanning Skills for eJPT:
+1. **TCP SYN Scanning**: Master `-sS` flag
+2. **Port Range Selection**: Efficient use of `-p`, `--top-ports`, `-p-`
+3. **Timing Control**: Proper use of `-T4` for lab environments
+4. **Output Management**: Always use `-oA` for documentation
+5. **UDP Scanning**: Basic understanding of `-sU` limitations
+6. **Host Discovery**: Know when to use `-Pn`
+
+### Critical Port Scanning Workflow for eJPT:
+```bash
+# 1. Network discovery
+nmap -sn <lab-network>
+
+# 2. Quick TCP assessment
+nmap -sS -T4 -F <target-ip>
+
+# 3. Full TCP port scan
+nmap -sS -T4 -p- --open -oA tcp_full <target-ip>
+
+# 4. Selective UDP scan
+nmap -sU -T4 --top-ports 100 --open <target-ip>
+
+# 5. Verify interesting ports
+nmap -sT -p <interesting-ports> <target-ip>
+```
+
+---
+
+## 🚨 Common Port Scanning Issues
+
+### Performance Problems
+```bash
+# Scan taking too long?
+nmap -T4 --min-rate 1000 --max-retries 2 <target-ip>
+
+# Getting timeout errors?
+nmap --host-timeout 10m <target-ip>
+
+# Need faster host discovery?
+nmap -n -sn <network>  # Skip DNS resolution
+```
+
+### Accuracy Issues
+```bash
+# Ports showing as filtered?
+nmap -Pn -sT <target-ip>  # Skip ping, use TCP Connect
+
+# Missing open ports?
+nmap -sS -sT -p <port> <target-ip>  # Compare scan methods
+
+# UDP scan showing nothing?
+sudo nmap -sU -sV --version-intensity 0 -p <udp-ports> <target-ip>
+```
+
+### Access Problems
+```bash
+# Permission denied for SYN scan?
+sudo nmap -sS <target-ip>
+
+# Can't reach target?
+nmap -Pn -sT <target-ip>
+
+# Firewall blocking scans?
+nmap -f --source-port 53 <target-ip>
+```
+
+---
+
+## 📚 Port Scanning Quick Reference
+
+### Most Critical Commands
+```bash
+# Basic TCP port scan
+nmap -sS <target-ip>
+
+# Fast comprehensive scan
+nmap -sS -T4 -p- --open <target-ip>
+
+# UDP scan (top ports)
+nmap -sU --top-ports 100 <target-ip>
+
+# Document results
+nmap -sS -T4 -p- -oA scan_results <target-ip>
 
 # Network discovery
 nmap -sn <network-range>
 
-# Common services scan
-nmap -sS -sV --top-ports 1000 <target>
+# Skip host discovery
+nmap -Pn -sS <target-ip>
 ```
 
-### Key Areas to Master:
+### Essential Port Scanning Flags
+- `-sS` = SYN scan (stealth, requires root)
+- `-sT` = TCP Connect scan (no root needed)
+- `-sU` = UDP scan
+- `-p-` = Scan all 65535 ports
+- `-p 1-1000` = Scan port range  
+- `--top-ports N` = Scan top N most common ports
+- `-T4` = Aggressive timing (fast)
+- `-T1` = Slow timing (stealth)
+- `--open` = Show only open ports
+- `-Pn` = Skip ping (assume host is up)
+- `-oA` = Output in all formats
 
-1. **Basic Port Scanning**: `-sS`, `-sV`, `-p-`, `--top-ports`
-2. **Service Enumeration**: `--script http-enum`, `--script smb-*`
-3. **Output Management**: `-oA` for complete documentation  
-4. **Timing**: `-T4` for efficient scanning in lab environments
-5. **Host Discovery**: `-sn` for network mapping, `-Pn` when ping blocked
-6. **NSE Scripts**: Focus on HTTP, SMB, and FTP enumeration scripts
-
-### Best Practices for eJPT:
-
-- Always use `-sS` when possible (requires root)
-- Combine `-sV` for service detection
-- Use `-T4` for faster scanning in lab environments
-- Save results with `-oA` for complete documentation
-- Focus on HTTP enumeration with `--script http-enum`
-- Start with quick scans (`-F` or `--top-ports 1000`) then expand to full port scans (`-p-`)
-- Document everything with proper output formatting
-
----
-
-## 🚨 Common Issues & Troubleshooting
-
-### When Scans Don't Work
-```bash
-# If ping is blocked
-nmap -Pn <target>
-
-# If ports seem closed but services are running
-nmap -sT <target>  # Try TCP connect instead of SYN
-
-# For slow networks
-nmap -T2 --max-retries 3 <target>
-
-# If getting permission denied
-sudo nmap -sS <target>  # Use sudo for SYN scans
-```
-
-### Performance Issues
-```bash
-# Speed up scans
-nmap -T4 --min-rate 1000 <target>
-
-# Reduce resource usage
-nmap -T2 --max-parallelism 10 <target>
-
-# Skip unnecessary features
-nmap -n --disable-arp-ping <target>
-```
-
----
-
-## 📚 Quick Reference Card
-
-### Most Used Commands
-```bash
-# Discovery
-nmap -sn <network>
-
-# Basic scan
-nmap -sS -sV <target>
-
-# Full scan
-nmap -sS -sV -sC -p- <target>
-
-# Web enumeration
-nmap --script http-enum -p 80,443 <target>
-
-# Save everything
-nmap -sS -sV -sC -oA results <target>
-
-# Fast assessment
-nmap -T4 -F <target>
-```
-
-### Essential Flags
-- `-sS` = SYN scan (stealth)
-- `-sV` = Version detection
-- `-sC` = Default scripts
-- `-p-` = All ports
-- `-T4` = Fast timing
-- `-oA` = Save all formats
-- `-Pn` = Skip ping
-- `--script` = Run NSE scripts
-
-This comprehensive guide covers all essential Nmap techniques needed for penetration testing, network security assessments, and certification exams like eJPT.
+This focused guide provides comprehensive coverage of Nmap port scanning techniques essential for penetration testing and security assessments.
