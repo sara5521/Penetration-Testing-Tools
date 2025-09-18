@@ -181,6 +181,168 @@ nmap --script smb-os-discovery -p 139,445 <target>
 nmap --script smb-* -p 139,445 <target>
 ```
 
+### Specialized Web Service Discovery
+
+#### WebDAV Discovery and Enumeration
+
+**WebDAV (Web Distributed Authoring and Versioning) Testing with Nmap**
+
+**Basic WebDAV Discovery**
+```bash
+# Discover WebDAV-enabled directories
+nmap --script http-enum -sV -p 80,443 <target>
+
+# Specific WebDAV scanning
+nmap --script http-webdav-scan -p 80,443 <target>
+
+# HTTP methods enumeration
+nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target>
+
+# Complete WebDAV assessment
+nmap --script http-webdav-scan,http-methods,http-enum -p 80,443 <target>
+```
+
+**Real Lab Example: Windows IIS WebDAV Discovery**
+
+**Scenario:** Discovering WebDAV service on Windows IIS Server
+- **Target:** demo.ine.local (10.0.31.40)
+- **Service:** Microsoft IIS httpd 10.0
+- **Objective:** Identify WebDAV capabilities and directory structure
+
+**Step 1: Initial Port Scan**
+```bash
+nmap demo.ine.local
+```
+
+**Expected Lab Output:**
+```
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-07-10 09:36 IST
+Nmap scan report for demo.ine.local (10.0.31.40)
+Host is up (0.0027s latency).
+Not shown: 990 closed tcp ports (reset)
+PORT     STATE SERVICE
+80/tcp   open  http
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+3306/tcp open  mysql
+3389/tcp open  ms-wbt-server
+
+Nmap done: 1 IP address (1 host up) scanned in 1.44 seconds
+```
+
+**Step 2: HTTP Service Enumeration**
+```bash
+nmap --script http-enum -sV -p 80 demo.ine.local
+```
+
+**Expected Lab Output:**
+```
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-07-10 09:37 IST
+Nmap scan report for demo.ine.local (10.0.31.40)
+Host is up (0.0026s latency).
+
+PORT    STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 10.0
+| http-enum:
+|_  /webdav/: Potentially interesting folder (401 Unauthorized)
+|_http-server-header: Microsoft-IIS/10.0
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 24.57 seconds
+```
+
+**Analysis:** 
+- **WebDAV Directory Found:** `/webdav/` directory discovered with 401 Unauthorized status
+- **Authentication Required:** HTTP Basic authentication needed for access
+- **Server Platform:** Microsoft IIS 10.0 on Windows
+- **Potential Vulnerability:** WebDAV service may allow file upload if credentials obtained
+
+**Step 3: WebDAV-Specific Scanning**
+```bash
+nmap --script http-webdav-scan -p 80 demo.ine.local
+```
+
+**Expected Results:**
+- Confirms WebDAV service availability
+- Identifies supported HTTP methods (PUT, MOVE, COPY, DELETE)
+- Reveals authentication requirements
+
+**Additional WebDAV Detection Scripts**
+```bash
+# Check for common WebDAV paths with detailed enumeration
+nmap --script http-enum --script-args http-enum.displayall -p 80 <target>
+
+# Test HTTP methods on specific paths
+nmap --script http-methods --script-args http-methods.url-path=/webdav/,http-methods.test-all -p 80 <target>
+
+# Comprehensive WebDAV and HTTP enumeration
+nmap --script http-webdav-scan,http-methods,http-enum,http-title,http-server-header -p 80,443 <target>
+```
+
+**Common WebDAV Paths to Test**
+```bash
+# Test multiple potential WebDAV endpoints
+nmap --script http-enum --script-args http-enum.basepath=/webdav/ -p 80 <target>
+nmap --script http-enum --script-args http-enum.basepath=/dav/ -p 80 <target>
+nmap --script http-enum --script-args http-enum.basepath=/uploads/ -p 80 <target>
+nmap --script http-enum --script-args http-enum.basepath=/_vti_bin/ -p 80 <target>
+```
+
+**Common WebDAV Locations:**
+- `/webdav/` - Standard WebDAV directory
+- `/dav/` - Alternative WebDAV path
+- `/uploads/` - Upload directory with WebDAV
+- `/_vti_bin/` - Microsoft FrontPage WebDAV
+- `/exchange/` - Exchange WebDAV
+- `/public/` - Public WebDAV access
+
+**eJPT Integration Points**
+
+**WebDAV Discovery in eJPT Context:**
+1. **Service Enumeration:** Use nmap to discover WebDAV services
+2. **Authentication Testing:** Identify authentication requirements
+3. **Directory Discovery:** Find WebDAV-enabled paths
+4. **Follow-up Testing:** Use davtest and cadaver for exploitation
+
+**Critical Commands for eJPT:**
+```bash
+# Primary discovery
+nmap --script http-enum -sV -p 80 <target>
+
+# WebDAV confirmation  
+nmap --script http-webdav-scan -p 80 <target>
+
+# Methods enumeration
+nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target>
+
+# Comprehensive WebDAV assessment
+nmap --script http-webdav-scan,http-methods,http-enum -p 80,443 <target>
+```
+
+**Integration with Other Tools:**
+- **Discovery:** nmap → identifies WebDAV service
+- **Assessment:** davtest → tests upload capabilities  
+- **Exploitation:** cadaver → manual file upload and management
+- **Access:** web browser → web shell execution
+
+**Complete WebDAV Assessment Workflow:**
+```bash
+# 1. Initial discovery
+nmap --script http-enum -sV -p 80,443 <target>
+
+# 2. WebDAV confirmation  
+nmap --script http-webdav-scan -p 80,443 <target>
+
+# 3. Method testing
+nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target>
+
+# 4. Follow-up with specialized tools
+davtest -url http://<target>/webdav/
+cadaver http://<target>/webdav/
+```
+
 ### Other Common Service Scripts
 ```bash
 # FTP anonymous login check
