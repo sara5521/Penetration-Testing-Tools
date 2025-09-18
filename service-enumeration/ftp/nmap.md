@@ -1,107 +1,101 @@
-# 📦 Nmap - FTP Enumeration Scripts
+# 📁 FTP Service Enumeration with Nmap
 
-This section covers Nmap NSE scripts for comprehensive FTP service enumeration and security testing.
-
-## 📋 Table of Contents
-- [Purpose](#-purpose)
-- [Script Overview](#-script-overview)
-- [Prerequisites](#-prerequisites)
-- [Service Detection](#-1-service-detection-and-version-scanning)
-- [Anonymous Access Testing](#-2-anonymous-access-testing)
-- [System Information](#-3-system-information-gathering)
-- [Brute Force Testing](#-4-brute-force-testing)
-- [Vulnerability Detection](#-5-vulnerability-detection)
-- [Advanced Techniques](#-6-advanced-techniques)
-- [Output Analysis](#-7-output-analysis-and-interpretation)
-- [Integration with Other Tools](#-8-integration-with-other-tools)
-- [Troubleshooting](#-troubleshooting)
-- [Security Considerations](#-security-considerations)
-- [References](#-references)
+Complete guide for FTP (File Transfer Protocol) service discovery and enumeration using Nmap NSE scripts.
 
 ---
 
-## 🎯 Purpose
+## 📋 Table of Contents
+- [Purpose and Overview](#purpose-and-overview)
+- [Script Reference Table](#script-reference-table)
+- [Prerequisites](#prerequisites)
+- [Service Detection and Version Scanning](#service-detection-and-version-scanning)
+- [Anonymous Access Testing](#anonymous-access-testing)
+- [System Information Gathering](#system-information-gathering)
+- [Brute Force Testing](#brute-force-testing)
+- [Vulnerability Detection](#vulnerability-detection)
+- [Advanced Techniques](#advanced-techniques)
+- [Complete Assessment Workflow](#complete-assessment-workflow)
+- [Real Lab Examples](#real-lab-examples)
+- [Output Analysis and Interpretation](#output-analysis-and-interpretation)
+- [Integration with Other Tools](#integration-with-other-tools)
+- [Troubleshooting](#troubleshooting)
+- [Security Considerations](#security-considerations)
+- [eJPT Focus Points](#ejpt-focus-points)
 
-Nmap FTP scripts help you:
+---
+
+## Purpose and Overview
+
+Nmap FTP enumeration helps you:
 - Detect FTP service versions and configurations
-- Test for anonymous FTP access and permissions
+- Test for anonymous FTP access and file permissions
 - Gather system information from FTP servers
-- Perform credential brute-force attacks
-- Identify FTP-specific vulnerabilities
+- Perform credential brute-force attacks safely
+- Identify FTP-specific vulnerabilities and backdoors
 - Enumerate FTP server capabilities and features
 
 ---
 
-## 🗂️ Script Overview
+## Script Reference Table
 
-| Script | Purpose | Auth Required | Risk Level |
-|--------|---------|---------------|------------|
-| `ftp-anon` | Test anonymous access | ❌ | 🟡 Medium |
-| `ftp-syst` | System information | ❌ | 🟢 Low |
-| `ftp-brute` | Credential brute-force | ❌ | 🔴 High |
-| `ftp-vsftpd-backdoor` | vsFTPd backdoor detection | ❌ | 🟡 Medium |
-| `ftp-bounce` | FTP bounce attack testing | ❌ | 🟠 High |
-| `ftp-proftpd-backdoor` | ProFTPd backdoor detection | ❌ | 🟡 Medium |
+| Script | Purpose | Auth Required | Risk Level | CVE Detection |
+|--------|---------|---------------|------------|---------------|
+| `ftp-anon` | Test anonymous access | No | Medium | - |
+| `ftp-syst` | System information | No | Low | - |
+| `ftp-brute` | Credential brute-force | No | High | - |
+| `ftp-vsftpd-backdoor` | vsFTPd backdoor detection | No | Medium | CVE-2011-2523 |
+| `ftp-bounce` | FTP bounce attack testing | No | High | CVE-1999-0017 |
+| `ftp-proftpd-backdoor` | ProFTPd backdoor detection | No | Medium | Various |
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
-### Nmap Installation:
+### Installation and Setup
 ```bash
 # Ubuntu/Debian
-sudo apt update
-sudo apt install nmap
+sudo apt update && sudo apt install nmap
 
 # CentOS/RHEL
 sudo yum install nmap
 
-# Verify installation and scripts
+# Verify FTP scripts availability
 nmap --script-help ftp-*
+locate ftp-anon.nse
 ```
 
-### Network Requirements:
-- FTP service running on target (port 21)
-- Network connectivity to target
-- Appropriate firewall rules
-
-### Quick Service Check:
+### Quick Service Verification
 ```bash
 # Basic port scan
-nmap -p 21 <target-ip>
+nmap -p 21 <target>
 
 # Quick service detection
-nmap -sV -p 21 <target-ip>
+nmap -sV -p 21 <target>
 ```
 
 ---
 
-## 🔧 Nmap FTP Enumeration
+## Service Detection and Version Scanning
 
-## 🖥️ 1. Service Detection and Version Scanning
-
-### Basic Service Detection:
+### Basic Service Detection
 ```bash
-nmap -sV -p 21 <target-ip>
+# Standard service version detection
+nmap -sV -p 21 <target>
 ```
 
-**📌 INE Lab Example:**
-```bash
-nmap -sV -p 21 demo.ine.local
-```
-
-**📸 Sample Output:**
+**Example Output:**
 ```bash
 PORT   STATE SERVICE VERSION
 21/tcp open  ftp     vsftpd 3.0.3
 ```
 
-### Enhanced Service Detection:
+### Enhanced Service Detection with Scripts
 ```bash
-nmap -sV -sC -p 21 <target-ip>
+# Service detection with default scripts
+nmap -sV -sC -p 21 <target>
 ```
 
-**📸 Enhanced Output:**
+**Enhanced Output:**
 ```bash
 PORT   STATE SERVICE VERSION
 21/tcp open  ftp     vsftpd 3.0.3
@@ -121,26 +115,52 @@ PORT   STATE SERVICE VERSION
 |_End of status
 ```
 
-### Aggressive Service Detection:
+### Comprehensive Service Analysis
 ```bash
-nmap -sV -A -p 21 <target-ip>
+# Aggressive service detection
+nmap -sV -A -p 21 <target>
+
+# Service detection with all FTP scripts
+nmap -sV --script "ftp-* and not ftp-brute" -p 21 <target>
 ```
+
+### Common FTP Server Identification
+
+#### vsFTPd Detection
+```bash
+21/tcp open  ftp     vsftpd 3.0.3
+```
+- **Software**: Very Secure FTP Daemon (Linux)
+- **Security**: Generally secure implementation
+- **Vulnerability**: Check version 2.3.4 for backdoor
+
+#### ProFTPd Detection
+```bash
+21/tcp open  ftp     ProFTPD 1.3.5a
+```
+- **Software**: Professional FTP daemon
+- **Security**: History of security issues
+- **Vulnerability**: Various CVEs, especially older versions
+
+#### FileZilla Server
+```bash
+21/tcp open  ftp     FileZilla ftpd 0.9.60
+```
+- **Software**: FileZilla Server (Windows)
+- **Platform**: Windows-based FTP server
+- **Security**: Check for latest updates
 
 ---
 
-## 🔓 2. Anonymous Access Testing
+## Anonymous Access Testing
 
-### Basic Anonymous Testing:
+### Basic Anonymous Access Detection
 ```bash
-nmap -p 21 --script ftp-anon <target-ip>
+# Test for anonymous FTP access
+nmap --script ftp-anon -p 21 <target>
 ```
 
-**📌 INE Lab Example:**
-```bash
-nmap -p 21 --script ftp-anon demo.ine.local
-```
-
-**📸 Sample Output:**
+**Example Output:**
 ```bash
 PORT   STATE SERVICE
 21/tcp open  ftp
@@ -148,44 +168,57 @@ PORT   STATE SERVICE
 |_List of FTP files and folders
 ```
 
-### Detailed Anonymous Enumeration:
+### Detailed Anonymous Enumeration
 ```bash
-nmap -p 21 --script ftp-anon --script-args ftp-anon.maxlist=10 <target-ip>
+# Anonymous access with file listing limit
+nmap --script ftp-anon --script-args ftp-anon.maxlist=10 -p 21 <target>
+
+# Deep directory traversal
+nmap --script ftp-anon --script-args ftp-anon.maxlist=100,ftp-anon.maxdepth=2 -p 21 <target>
+
+# Check specific FTP directories
+nmap --script ftp-anon --script-args ftp-anon.basedir="/pub/" -p 21 <target>
 ```
 
-**📸 Detailed Output:**
+**Detailed Output Analysis:**
 ```bash
 PORT   STATE SERVICE
 21/tcp open  ftp
 | ftp-anon: Anonymous FTP login allowed (FTP code 230)
 | drwxrwxrwx    2 0        0            4096 Sep 16 12:00 uploads [NSE: writeable]
-| drwxr-xr-x    2 0        0            4096 Sep 16 12:00 documents
+| drwxr-xr-x    2 0        0            4096 Sep 16 12:00 documents  
 | -rw-r--r--    1 0        0             156 Sep 16 12:00 readme.txt
 | -rw-r--r--    1 0        0            2048 Sep 16 12:00 config.bak
 |_End of listing
 ```
 
-### Script Arguments for ftp-anon:
+### Anonymous Access Script Arguments
+
 | Argument | Description | Example |
 |----------|-------------|---------|
 | `maxlist` | Maximum files to list | `--script-args ftp-anon.maxlist=20` |
 | `maxdepth` | Directory traversal depth | `--script-args ftp-anon.maxdepth=2` |
+| `basedir` | Starting directory | `--script-args ftp-anon.basedir="/pub/"` |
+
+### Permission Analysis
+| Permission String | Meaning | Security Risk |
+|------------------|---------|---------------|
+| `drwxrwxrwx` | Fully writable directory | Critical - File upload possible |
+| `drwxr-xr-x` | Read-only directory | Medium - Information disclosure |
+| `-rw-r--r--` | Read-only file | Low - Limited access |
+| `-rw-rw-rw-` | Writable file | High - File modification possible |
 
 ---
 
-## 🖥️ 3. System Information Gathering
+## System Information Gathering
 
-### FTP System Information:
+### FTP System Information
 ```bash
-nmap -p 21 --script ftp-syst <target-ip>
+# Gather FTP server system information
+nmap --script ftp-syst -p 21 <target>
 ```
 
-**📌 INE Lab Example:**
-```bash
-nmap -sV -p 21 --script ftp-syst demo.ine.local
-```
-
-**📸 Sample Output:**
+**Example Output:**
 ```bash
 PORT   STATE SERVICE VERSION
 21/tcp open  ftp     vsftpd 3.0.3
@@ -202,28 +235,40 @@ PORT   STATE SERVICE VERSION
 |_End of status
 ```
 
-### Comprehensive System Information:
+### Combined System and Access Testing
 ```bash
-nmap -p 21 --script ftp-syst,ftp-anon -sV <target-ip>
+# Comprehensive system information with anonymous testing
+nmap --script ftp-syst,ftp-anon -sV -p 21 <target>
+
+# System information with banner grabbing
+nmap --script banner,ftp-syst -p 21 <target>
 ```
 
 ---
 
-## 🔐 4. Brute Force Testing
+## Brute Force Testing
 
-### Basic Brute Force:
+### Basic Brute Force Authentication
 ```bash
-nmap -p 21 --script ftp-brute <target-ip>
+# Basic credential brute force (USE WITH CAUTION)
+nmap --script ftp-brute -p 21 <target>
 ```
 
-**⚠️ WARNING**: Brute force attacks can lock accounts and trigger security alerts.
+**Warning**: Brute force attacks can lock accounts and trigger security alerts.
 
-### Advanced Brute Force with Custom Lists:
+### Advanced Brute Force with Custom Wordlists
 ```bash
-nmap -p 21 --script ftp-brute --script-args userdb=users.txt,passdb=passwords.txt <target-ip>
+# Custom username and password lists
+nmap --script ftp-brute --script-args userdb=users.txt,passdb=passwords.txt -p 21 <target>
+
+# Safe brute force with limitations
+nmap --script ftp-brute --script-args brute.threads=2,unpwdb.timelimit=30,brute.firstonly=true -p 21 <target>
+
+# Brute force with common credentials only
+nmap --script ftp-brute --script-args brute.firstonly=true -p 21 <target>
 ```
 
-**📸 Sample Output:**
+**Example Output:**
 ```bash
 PORT   STATE SERVICE
 21/tcp open  ftp
@@ -235,30 +280,28 @@ PORT   STATE SERVICE
 |_  Average tps: 1.7
 ```
 
-### Brute Force Script Arguments:
+### Brute Force Script Arguments
+
 | Argument | Description | Example |
 |----------|-------------|---------|
-| `userdb` | Username list file | `--script-args userdb=/path/to/users.txt` |
-| `passdb` | Password list file | `--script-args passdb=/path/to/passwords.txt` |
-| `unpwdb.timelimit` | Time limit in seconds | `--script-args unpwdb.timelimit=30` |
-| `brute.firstonly` | Stop after first success | `--script-args brute.firstonly=true` |
-| `brute.threads` | Number of threads | `--script-args brute.threads=3` |
-
-### Safe Brute Force Testing:
-```bash
-nmap -p 21 --script ftp-brute --script-args brute.threads=2,unpwdb.timelimit=30,brute.firstonly=true <target-ip>
-```
+| `userdb` | Username list file | `userdb=/path/to/users.txt` |
+| `passdb` | Password list file | `passdb=/path/to/passwords.txt` |
+| `unpwdb.timelimit` | Time limit in seconds | `unpwdb.timelimit=30` |
+| `brute.firstonly` | Stop after first success | `brute.firstonly=true` |
+| `brute.threads` | Number of threads | `brute.threads=3` |
+| `brute.delay` | Delay between attempts | `brute.delay=1s` |
 
 ---
 
-## 🚨 5. Vulnerability Detection
+## Vulnerability Detection
 
-### vsFTPd Backdoor Detection:
+### vsFTPd Backdoor Detection (CVE-2011-2523)
 ```bash
-nmap -p 21 --script ftp-vsftpd-backdoor <target-ip>
+# Detect vsFTPd 2.3.4 backdoor
+nmap --script ftp-vsftpd-backdoor -p 21 <target>
 ```
 
-**📸 Sample Output (if vulnerable):**
+**Example Output (if vulnerable):**
 ```bash
 PORT   STATE SERVICE
 21/tcp open  ftp
@@ -276,17 +319,22 @@ PORT   STATE SERVICE
 |_      http://www.securityfocus.com/bid/48539
 ```
 
-### ProFTPd Backdoor Detection:
+### ProFTPd Backdoor Detection
 ```bash
-nmap -p 21 --script ftp-proftpd-backdoor <target-ip>
+# Detect ProFTPd backdoors
+nmap --script ftp-proftpd-backdoor -p 21 <target>
 ```
 
-### FTP Bounce Attack Testing:
+### FTP Bounce Attack Testing (CVE-1999-0017)
 ```bash
-nmap -p 21 --script ftp-bounce --script-args ftp-bounce.checkhost=<internal-ip> <target-ip>
+# Test for FTP bounce attack vulnerability
+nmap --script ftp-bounce -p 21 <target>
+
+# FTP bounce with specific internal target
+nmap --script ftp-bounce --script-args ftp-bounce.checkhost=192.168.1.10 -p 21 <target>
 ```
 
-**📸 Sample Output (if vulnerable):**
+**Example Output (if vulnerable):**
 ```bash
 PORT   STATE SERVICE
 21/tcp open  ftp
@@ -300,49 +348,258 @@ PORT   STATE SERVICE
 |_    References: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-0017
 ```
 
+### Comprehensive Vulnerability Assessment
+```bash
+# All vulnerability checks
+nmap --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor,ftp-bounce -p 21 <target>
+```
+
 ---
 
-## 🚀 6. Advanced Techniques
+## Advanced Techniques
 
-### Comprehensive FTP Scanning:
+### Comprehensive FTP Assessment
 ```bash
-nmap -p 21 --script "ftp-* and not ftp-brute" -sV <target-ip>
+# All FTP scripts except brute force
+nmap --script "ftp-* and not ftp-brute" -sV -p 21 <target>
+
+# Complete FTP security assessment
+nmap --script ftp-anon,ftp-syst,ftp-vsftpd-backdoor,ftp-proftpd-backdoor,ftp-bounce -sV -p 21 <target>
 ```
 
-### All-in-One FTP Assessment:
+### Network-Wide FTP Discovery
 ```bash
-nmap -p 21 --script ftp-anon,ftp-syst,ftp-vsftpd-backdoor,ftp-proftpd-backdoor -sV <target-ip>
+# Find FTP services with anonymous access across network
+nmap --script ftp-anon --open -p 21 192.168.1.0/24
+
+# Quick FTP vulnerability scan across subnet
+nmap --script ftp-vsftpd-backdoor -p 21 --open 10.0.0.0/24
 ```
 
-### Subnet FTP Discovery:
+### Custom FTP Enumeration Combinations
 ```bash
-nmap -p 21 --script ftp-anon --open <target-range>
+# Security-focused FTP scan
+nmap --script "ftp-* and not ftp-brute" -sV --script-args ftp-anon.maxlist=20 -p 21 <target>
+
+# Quick anonymous access check
+nmap --script ftp-anon --script-args ftp-anon.maxlist=5 -p 21 <target>
+
+# Vulnerability-only assessment  
+nmap --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor,ftp-bounce -p 21 <target>
 ```
 
-**📌 Example:**
+### FTP Port Variations
 ```bash
-nmap -p 21 --script ftp-anon --open 192.168.1.0/24
+# Standard and alternative FTP ports
+nmap --script ftp-anon -p 21,2121,8021 <target>
+
+# High port FTP services
+nmap --script ftp-* -p 21000-21100 <target>
+
+# Multiple FTP service discovery
+nmap -sV -p 21,990,2121,8021 <target>
 ```
 
-### Custom Script Combinations:
+---
+
+## Complete Assessment Workflow
+
+### Phase 1: Service Discovery
 ```bash
-# Security-focused scan
-nmap -p 21 --script "ftp-* and not ftp-brute" -sV --script-args ftp-anon.maxlist=20 <target>
+# Step 1: Port discovery
+nmap -p 20,21,990,2121,8021 <target>
 
-# Quick anonymous check
-nmap -p 21 --script ftp-anon --script-args ftp-anon.maxlist=5 <target>
+# Step 2: Service version detection
+nmap -sV -p 21,990 <target>
 
-# Vulnerability assessment
-nmap -p 21 --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor,ftp-bounce <target>
+# Step 3: Basic FTP information
+nmap --script ftp-syst,banner -p 21 <target>
 ```
 
-### Automated FTP Enumeration Script:
+### Phase 2: Access Testing
+```bash
+# Step 4: Anonymous access check
+nmap --script ftp-anon -p 21 <target>
+
+# Step 5: Authentication testing (if appropriate)
+nmap --script ftp-brute --script-args brute.firstonly=true -p 21 <target>
+
+# Step 6: Directory enumeration (if access gained)
+nmap --script ftp-anon --script-args ftp-anon.maxlist=1000 -p 21 <target>
+```
+
+### Phase 3: Security Assessment
+```bash
+# Step 7: Vulnerability scanning
+nmap --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor,ftp-bounce -p 21 <target>
+
+# Step 8: SSL/TLS assessment (if FTPS)
+nmap --script ssl-enum-ciphers,ssl-cert -p 990 <target>
+```
+
+---
+
+## Real Lab Examples
+
+### Example 1: Anonymous FTP Server Assessment
+```bash
+# Target: FTP server with anonymous access
+
+# Basic service detection
+nmap -sV -p 21 192.168.1.100
+
+# Anonymous access check with file enumeration
+nmap --script ftp-anon --script-args ftp-anon.maxlist=500 -p 21 192.168.1.100
+
+# System information gathering
+nmap --script ftp-syst -p 21 192.168.1.100
+```
+
+**Expected Output:**
+```bash
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     vsftpd 3.0.3
+
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| drwxr-xr-x    2 ftp      ftp          4096 May 17  2020 pub
+| -rw-r--r--    1 ftp      ftp           156 May 17  2020 welcome.txt
+|_drwxrwxrwx    2 ftp      ftp          4096 May 17  2020 uploads [NSE: writeable]
+
+| ftp-syst: 
+|   STAT: 
+| FTP server status:
+|      Connected to ::ffff:192.168.1.50
+|      Logged in as ftp
+|      TYPE: ASCII
+|      No session bandwidth limit
+|      Session timeout in seconds is 300
+|      Control connection is plain text
+|      Data connections will be plain text
+|      At session startup, client count was 1
+|      vsFTPd 3.0.3 - secure, fast, stable
+|_End of status
+```
+
+### Example 2: vsFTPd 2.3.4 Backdoor Detection
+```bash
+# Target: Potentially vulnerable vsftpd server
+
+# Version detection
+nmap -sV -p 21 <target>
+
+# Backdoor detection
+nmap --script ftp-vsftpd-backdoor -p 21 <target>
+
+# If backdoor detected, test shell access
+# (This would typically be followed up with netcat to port 6200)
+```
+
+### Example 3: Network FTP Discovery
+```bash
+# Target: Network range for FTP services
+
+# Discovery scan for FTP services
+nmap -p 21 --open 192.168.1.0/24
+
+# Anonymous access testing on discovered services
+nmap --script ftp-anon -p 21 --open 192.168.1.0/24
+
+# Quick vulnerability assessment
+nmap --script ftp-vsftpd-backdoor -p 21 --open 192.168.1.0/24
+```
+
+---
+
+## Output Analysis and Interpretation
+
+### Service Version Analysis
+
+**vsFTPd 3.0.3 (Secure):**
+```bash
+21/tcp open  ftp     vsftpd 3.0.3
+```
+- **Status**: Generally secure version
+- **Action**: Check configuration for anonymous access
+- **Risk**: Low unless misconfigured
+
+**vsFTPd 2.3.4 (Vulnerable):**
+```bash
+21/tcp open  ftp     vsftpd 2.3.4
+```
+- **Status**: Contains backdoor (CVE-2011-2523)  
+- **Action**: Immediate update required
+- **Risk**: Critical - Remote code execution
+
+**ProFTPd 1.3.x:**
+```bash
+21/tcp open  ftp     ProFTPD 1.3.5a
+```
+- **Status**: Check for specific CVEs
+- **Action**: Research version vulnerabilities
+- **Risk**: Variable depending on version
+
+### Anonymous Access Risk Assessment
+
+**Read-Only Anonymous Access:**
+```bash
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| drwxr-xr-x    2 0        0            4096 Sep 16 12:00 documents
+```
+- **Risk Level**: Medium
+- **Impact**: Information disclosure
+- **Action**: Review accessible files for sensitive data
+
+**Write Access Anonymous:**
+```bash
+| drwxrwxrwx    2 0        0            4096 Sep 16 12:00 uploads [NSE: writeable]
+```
+- **Risk Level**: Critical
+- **Impact**: File upload, potential web shell placement
+- **Action**: Test upload capabilities carefully
+
+### Vulnerability Priority Matrix
+
+| Vulnerability | CVSS Score | Exploitability | Priority |
+|---------------|------------|----------------|----------|
+| vsFTPd 2.3.4 Backdoor | 10.0 | Remote/Easy | Critical |
+| FTP Bounce Attack | 5.0 | Network/Medium | High |
+| Anonymous Write Access | 7.5 | Remote/Easy | Critical |
+| ProFTPd Backdoors | Variable | Remote/Medium | High |
+
+---
+
+## Integration with Other Tools
+
+### Manual FTP Testing After Nmap
+```bash
+# Nmap discovery first
+nmap --script ftp-anon -p 21 demo.ine.local
+
+# Manual validation with FTP client
+ftp demo.ine.local
+# Name: anonymous
+# Password: (leave blank or use email)
+```
+
+### Metasploit Integration
+```bash
+# After Nmap enumeration
+nmap --script ftp-anon --open -p 21 192.168.1.0/24
+
+# Follow up with Metasploit
+msfconsole -q
+use auxiliary/scanner/ftp/anonymous
+set RHOSTS 192.168.1.0/24
+run
+```
+
+### Automated Workflow Script
 ```bash
 #!/bin/bash
-# Comprehensive FTP enumeration with Nmap
+# Comprehensive FTP enumeration pipeline
 
 TARGET=$1
-OUTPUT_DIR="nmap_ftp_$(date +%Y%m%d_%H%M%S)"
+OUTPUT_DIR="ftp_enum_$(date +%Y%m%d_%H%M%S)"
 
 if [[ -z "$TARGET" ]]; then
     echo "Usage: $0 <target>"
@@ -350,40 +607,35 @@ if [[ -z "$TARGET" ]]; then
 fi
 
 mkdir -p $OUTPUT_DIR
-echo "=== Nmap FTP Enumeration of $TARGET ==="
-echo "Output directory: $OUTPUT_DIR"
+echo "=== FTP Enumeration of $TARGET ==="
 
 # Step 1: Service detection
-echo "Step 1: Service detection and version scanning..."
+echo "[+] Step 1: Service detection..."
 nmap -sV -p 21 $TARGET -oA $OUTPUT_DIR/service_detection
 
 # Step 2: Anonymous access testing
-echo "Step 2: Testing anonymous access..."
-nmap -p 21 --script ftp-anon --script-args ftp-anon.maxlist=20 $TARGET -oA $OUTPUT_DIR/anonymous_test
+echo "[+] Step 2: Anonymous access testing..."
+nmap --script ftp-anon --script-args ftp-anon.maxlist=20 -p 21 $TARGET -oA $OUTPUT_DIR/anonymous_test
 
 # Step 3: System information
-echo "Step 3: Gathering system information..."
-nmap -p 21 --script ftp-syst $TARGET -oA $OUTPUT_DIR/system_info
+echo "[+] Step 3: System information gathering..."
+nmap --script ftp-syst -p 21 $TARGET -oA $OUTPUT_DIR/system_info
 
-# Step 4: Vulnerability scanning
-echo "Step 4: Vulnerability detection..."
-nmap -p 21 --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor $TARGET -oA $OUTPUT_DIR/vulnerability_scan
+# Step 4: Vulnerability assessment
+echo "[+] Step 4: Vulnerability detection..."
+nmap --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor,ftp-bounce -p 21 $TARGET -oA $OUTPUT_DIR/vulnerability_scan
 
-# Step 5: Comprehensive scan
-echo "Step 5: Comprehensive FTP script scan..."
-nmap -p 21 --script "ftp-* and not ftp-brute" -sV $TARGET -oA $OUTPUT_DIR/comprehensive
-
-# Step 6: Generate summary
-echo "Step 6: Generating summary..."
+# Step 5: Generate summary report
+echo "[+] Step 5: Generating summary..."
 echo "=== FTP Enumeration Summary ===" > $OUTPUT_DIR/summary.txt
 echo "Target: $TARGET" >> $OUTPUT_DIR/summary.txt
 echo "Date: $(date)" >> $OUTPUT_DIR/summary.txt
-echo >> $OUTPUT_DIR/summary.txt
+echo "" >> $OUTPUT_DIR/summary.txt
 
 # Extract key findings
-if grep -q "ftp.*open" $OUTPUT_DIR/service_detection.nmap; then
+if grep -q "21/tcp.*open.*ftp" $OUTPUT_DIR/service_detection.nmap; then
     echo "✓ FTP service detected" >> $OUTPUT_DIR/summary.txt
-    grep "ftp.*vsftpd\|ProFTPd\|FileZilla" $OUTPUT_DIR/service_detection.nmap >> $OUTPUT_DIR/summary.txt
+    grep "21/tcp.*ftp" $OUTPUT_DIR/service_detection.nmap >> $OUTPUT_DIR/summary.txt
 fi
 
 if grep -q "Anonymous FTP login allowed" $OUTPUT_DIR/anonymous_test.nmap; then
@@ -394,317 +646,161 @@ if grep -q "VULNERABLE" $OUTPUT_DIR/vulnerability_scan.nmap; then
     echo "⚠ Vulnerabilities detected" >> $OUTPUT_DIR/summary.txt
 fi
 
+if grep -q "writeable" $OUTPUT_DIR/anonymous_test.nmap; then
+    echo "🔴 Writable directories found" >> $OUTPUT_DIR/summary.txt
+fi
+
+echo ""
 echo "Enumeration complete. Results saved in $OUTPUT_DIR/"
 cat $OUTPUT_DIR/summary.txt
 ```
 
 ---
 
-## 🔍 7. Output Analysis and Interpretation
+## Troubleshooting
 
-### Service Version Analysis:
-
-**vsFTPd Detection:**
-```bash
-21/tcp open  ftp     vsftpd 3.0.3
-```
-- **Software**: Very Secure FTP Daemon (Linux)
-- **Version**: 3.0.3 - check for CVEs
-- **Security**: Generally secure implementation
-
-**ProFTPd Detection:**
-```bash
-21/tcp open  ftp     ProFTPD 1.3.5a
-```
-- **Software**: Professional FTP daemon
-- **Version**: 1.3.5a - research vulnerabilities
-- **Security**: History of security issues
-
-**FileZilla Server:**
-```bash
-21/tcp open  ftp     FileZilla ftpd 0.9.60
-```
-- **Software**: FileZilla Server (Windows)
-- **Version**: 0.9.60 - check for updates
-- **Platform**: Windows-based FTP server
-
-### Anonymous Access Analysis:
-
-**Full Anonymous Access:**
-```bash
-| ftp-anon: Anonymous FTP login allowed (FTP code 230)
-| drwxrwxrwx    2 0        0            4096 Sep 16 12:00 uploads [NSE: writeable]
-```
-- **Risk**: High - write access allows file upload
-- **Action**: Test upload capabilities carefully
-
-**Read-Only Anonymous Access:**
-```bash
-| ftp-anon: Anonymous FTP login allowed (FTP code 230)
-| drwxr-xr-x    2 0        0            4096 Sep 16 12:00 documents
-```
-- **Risk**: Medium - information disclosure
-- **Action**: Enumerate and download files
-
-### Vulnerability Analysis:
-
-**vsFTPd Backdoor (CVE-2011-2523):**
-```bash
-|   VULNERABLE:
-|   vsFTPd version 2.3.4 backdoor
-|     State: VULNERABLE (Exploitable)
-```
-- **Impact**: Remote code execution
-- **CVSS**: 10.0 (Critical)
-- **Action**: Immediate patching required
-
-### Directory Permission Interpretation:
-
-| Permission | Owner | Group | Other | Meaning |
-|------------|-------|-------|--------|---------|
-| `drwxrwxrwx` | rwx | rwx | rwx | Fully writable directory |
-| `drwxr-xr-x` | rwx | r-x | r-x | Read-only for group/other |
-| `-rw-r--r--` | rw- | r-- | r-- | Read-only file |
-| `-rw-rw-rw-` | rw- | rw- | rw- | Writable file |
-
----
-
-## 🔗 8. Integration with Other Tools
-
-### With Metasploit:
-```bash
-# Nmap discovery
-nmap -p 21 --script ftp-anon --open 192.168.1.0/24
-
-# Follow up with Metasploit
-use auxiliary/scanner/ftp/anonymous
-set RHOSTS <discovered-hosts>
-run
-```
-
-### With Manual Tools:
-```bash
-# Nmap enumeration
-nmap -p 21 --script ftp-anon,ftp-syst demo.ine.local
-
-# Manual validation
-ftp demo.ine.local
-# Name: anonymous
-# Password: (blank)
-```
-
-### Pipeline Integration:
-```bash
-#!/bin/bash
-# Nmap FTP to manual enumeration pipeline
-
-TARGET=$1
-
-echo "=== FTP Enumeration Pipeline ==="
-
-# Step 1: Nmap service detection
-echo "Step 1: Service detection"
-if nmap -p 21 $TARGET | grep -q "21/tcp open"; then
-    echo "✓ FTP service detected"
-    
-    # Step 2: Version and script scanning
-    echo "Step 2: Detailed enumeration"
-    nmap -sV -p 21 --script "ftp-* and not ftp-brute" $TARGET
-    
-    # Step 3: Check for anonymous access
-    if nmap -p 21 --script ftp-anon $TARGET | grep -q "Anonymous FTP login allowed"; then
-        echo "✓ Anonymous access detected"
-        echo "Step 3: Testing manual access"
-        
-        # Automated anonymous test
-        echo -e "anonymous\nanonymous\nls\nquit" | ftp $TARGET
-    fi
-    
-    # Step 4: Check for vulnerabilities
-    echo "Step 4: Vulnerability check"
-    nmap -p 21 --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor $TARGET
-    
-else
-    echo "✗ No FTP service detected"
-fi
-```
-
-### Cross-Validation:
-```bash
-# Compare Nmap and Metasploit results
-nmap -p 21 --script ftp-anon <target> > nmap_results.txt
-msfconsole -q -x "use auxiliary/scanner/ftp/anonymous; set RHOSTS <target>; run; exit" > msf_results.txt
-
-# Validate with manual tools
-curl ftp://<target>/ > curl_results.txt
-```
-
----
-
-## 🛠️ Troubleshooting
-
-### Common Issues and Solutions:
+### Common Issues and Solutions
 
 | Issue | Symptoms | Solution |
 |-------|----------|----------|
-| **Scripts Not Found** | `NSE: failed to initialize the script engine` | Update Nmap or check script location |
-| **Connection Timeout** | Scripts hang or timeout | Increase timeout with `--script-timeout` |
-| **Permission Denied** | `SCRIPT ENGINE: Aborting script scan` | Run as root for some operations |
-| **Firewall Blocking** | No response from scripts | Check firewall rules and NAT |
-| **Script Errors** | Script execution failures | Update NSE script database |
+| **Scripts Not Found** | `NSE: failed to initialize` | Update Nmap: `nmap --script-updatedb` |
+| **Connection Timeout** | Scripts hang indefinitely | Add timeout: `--script-timeout 30s` |
+| **Permission Denied** | Script execution failures | Run as root: `sudo nmap` |
+| **Firewall Blocking** | No response from target | Check firewall rules and connectivity |
+| **False Positives** | Incorrect vulnerability reports | Manual verification required |
 
-### Debugging Commands:
+### Debug and Verbose Options
 ```bash
-# Check script location
-locate ftp-anon.nse
-
-# Update script database
-nmap --script-updatedb
-
 # Verbose script execution
-nmap -p 21 --script ftp-anon --script-trace <target>
+nmap --script ftp-anon -v -p 21 <target>
 
-# Debug script execution
-nmap -p 21 --script ftp-anon -d <target>
+# Script tracing for debugging
+nmap --script ftp-anon --script-trace -p 21 <target>
+
+# Debug-level output
+nmap --script ftp-anon -d -p 21 <target>
 ```
 
-### Performance Optimization:
+### Performance Optimization
 ```bash
-# Faster scanning
-nmap -p 21 --script ftp-anon --min-rate 1000 <target>
+# Faster scanning with rate limiting
+nmap --script ftp-anon --min-rate 1000 -p 21 <target>
 
-# Adjust timeouts
-nmap -p 21 --script ftp-anon --script-timeout 30s <target>
+# Adjust script timeout
+nmap --script ftp-anon --script-timeout 30s -p 21 <target>
 
 # Parallel host scanning
-nmap -p 21 --script ftp-anon --min-parallelism 10 <target-range>
-```
-
-### Script Customization:
-```bash
-# Custom script arguments
-nmap -p 21 --script ftp-anon --script-args ftp-anon.maxlist=50,ftp-anon.maxdepth=3 <target>
-
-# Combine with timing templates
-nmap -T4 -p 21 --script "ftp-* and not ftp-brute" <target>
+nmap --script ftp-anon --min-parallelism 10 -p 21 <target-range>
 ```
 
 ---
 
-## ⚠️ Security Considerations
+## Security Considerations
 
-### Legal and Ethical Guidelines:
+### Legal and Ethical Guidelines
 - **Authorization Required**: Only scan systems you own or have explicit permission to test
-- **Scope Compliance**: Stay within authorized IP ranges and ports
-- **Brute Force Caution**: Use ftp-brute script only with proper authorization
-- **Data Sensitivity**: Be careful when accessing anonymous FTP content
+- **Scope Compliance**: Stay within authorized IP ranges and service ports
+- **Brute Force Caution**: Use ftp-brute script only with proper authorization and rate limiting
+- **Data Handling**: Be careful when accessing anonymous FTP content - respect data privacy
 
-### Operational Security:
-- **Logging Impact**: Nmap scans are logged by target systems
-- **Network Detection**: FTP script execution may trigger IDS alerts
-- **Service Disruption**: Aggressive scanning may affect FTP service performance
-- **Timing**: Use appropriate timing templates to avoid detection
+### Operational Security
+- **Logging Impact**: All FTP enumeration activities are logged by target systems
+- **IDS Detection**: FTP script execution may trigger intrusion detection alerts
+- **Service Impact**: Aggressive scanning may affect FTP service performance
+- **Network Footprint**: Use appropriate timing templates to minimize detection
 
-### Detection Indicators:
-- **Network Logs**: Port scanning patterns in firewall logs
-- **FTP Server Logs**: Connection attempts from scanning IP
-- **IDS Signatures**: Nmap script execution patterns
-- **Security Alerts**: Unusual FTP enumeration activity
+### Risk Assessment Framework
 
-### Defensive Countermeasures:
-- **Disable Unnecessary Services**: Remove FTP if not required
-- **Anonymous Access**: Disable anonymous login if not needed
-- **Network Monitoring**: Deploy FTP-specific monitoring rules
-- **Regular Updates**: Keep FTP server software updated
-- **Access Controls**: Implement proper authentication and authorization
+| Activity | Detection Risk | Service Impact | Legal Risk | Recommendation |
+|----------|----------------|----------------|------------|----------------|
+| Service Detection | Low | Minimal | Low | Generally safe with authorization |
+| Anonymous Testing | Medium | Minimal | Medium | Monitor for excessive enumeration |
+| Vulnerability Scanning | Medium | Minimal | Medium | Important for security assessment |
+| Brute Force Testing | High | Moderate | High | Use only with explicit authorization |
 
-### Risk Assessment:
-| Activity | Detection Risk | Impact | Recommendation |
-|----------|----------------|--------|----------------|
-| Service Detection | 🟢 Low | 🟢 Low | Generally safe with authorization |
-| Anonymous Testing | 🟡 Medium | 🟡 Medium | Monitor for excessive enumeration |
-| Brute Force Scripts | 🔴 High | 🔴 High | Use only with explicit authorization |
-| Vulnerability Scripts | 🟡 Medium | 🟠 High | Important for security assessment |
+### Defensive Countermeasures
+- **Service Hardening**: Disable anonymous access if not required
+- **Network Monitoring**: Deploy FTP-specific monitoring and alerting
+- **Access Controls**: Implement proper authentication and file permissions  
+- **Regular Updates**: Keep FTP server software updated with latest patches
+- **Firewall Rules**: Restrict FTP access to necessary networks only
 
 ---
 
-## 📖 References
+## eJPT Focus Points
 
-### Official Documentation:
-- [Nmap NSE Documentation](https://nmap.org/nsedoc/) - Complete NSE script reference
-- [Nmap FTP Scripts](https://nmap.org/nsedoc/categories/ftp.html) - FTP-specific scripts
-- [NSE Script Development](https://nmap.org/book/nse-tutorial.html) - Script development guide
-
-### Security Research:
-- [FTP Security Assessment](https://www.sans.org/reading-room/whitepapers/protocols/ftp-security-1327) - SANS methodology
-- [FTP Vulnerabilities](https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=ftp) - CVE database
-- [Network Service Enumeration](https://book.hacktricks.xyz/network-services-pentesting/pentesting-ftp) - Practical techniques
-
-### Learning Resources:
-- [Nmap Network Scanning](https://nmap.org/book/) - Official Nmap guide
-- [NSE Script Examples](https://github.com/nmap/nmap/tree/master/scripts) - Script source code
-- [Network Discovery and Enumeration](https://www.offensive-security.com/metasploit-unleashed/) - Advanced techniques
-
----
-
-## 📋 Quick Reference
-
-### Essential Commands:
+### Essential FTP Commands for eJPT
 ```bash
-# Service detection
-nmap -sV -p 21 <target>
+# Basic FTP discovery and anonymous access
+nmap --script ftp-anon -sV -p 21 <target>
 
-# Anonymous testing
-nmap -p 21 --script ftp-anon <target>
+# FTP vulnerability assessment
+nmap --script ftp-vsftpd-backdoor,ftp-proftpd-backdoor -p 21 <target>
 
-# System information
-nmap -p 21 --script ftp-syst <target>
+# FTP system information
+nmap --script ftp-syst -p 21 <target>
 
-# Comprehensive scan
-nmap -p 21 --script "ftp-* and not ftp-brute" -sV <target>
+# Complete FTP enumeration (safe)
+nmap --script "ftp-* and not ftp-brute" -p 21 <target>
 ```
 
-### Key NSE Scripts:
-- **ftp-anon**: Anonymous access testing
-- **ftp-syst**: System information gathering
-- **ftp-vsftpd-backdoor**: vsFTPd backdoor detection
-- **ftp-brute**: Credential brute-force (use carefully)
+### Critical Attack Vectors for eJPT
 
-### Script Arguments:
+1. **Anonymous Access Exploitation**
+   - File disclosure through anonymous FTP
+   - Directory traversal and enumeration
+   - Upload capabilities testing
+
+2. **vsFTPd 2.3.4 Backdoor (CVE-2011-2523)**
+   - Remote code execution via backdoor
+   - Shell access on port 6200
+   - Critical vulnerability exploitation
+
+3. **Information Disclosure**
+   - Configuration files via anonymous access
+   - System information through SYST command
+   - Directory structure enumeration
+
+4. **File Upload Scenarios**
+   - Web shell upload via writable FTP directories
+   - Privilege escalation through file placement
+   - Path traversal exploitation
+
+### Common eJPT Scenarios
+
+**Scenario 1: Anonymous FTP to Web Shell**
 ```bash
-# ftp-anon arguments
---script-args ftp-anon.maxlist=20,ftp-anon.maxdepth=2
+# Discovery
+nmap --script ftp-anon -p 21 <target>
 
-# ftp-brute arguments
---script-args userdb=users.txt,passdb=passwords.txt,brute.firstonly=true
+# Find writable web directory
+# Upload web shell via FTP
+# Access shell through web browser
 ```
 
-### Output Priorities:
-1. **Critical**: VULNERABLE findings from backdoor scripts
-2. **High**: Anonymous write access (writable directories)
-3. **Medium**: Anonymous read access, system information
-4. **Low**: Version information, connection details
+**Scenario 2: vsFTPd Backdoor Exploitation**
+```bash
+# Detect backdoor
+nmap --script ftp-vsftpd-backdoor -p 21 <target>
 
-### Success Indicators:
-- FTP service version identified
+# Exploit backdoor (manual or Metasploit)
+# Gain root shell access
+```
+
+**Scenario 3: Configuration File Discovery**
+```bash
+# Anonymous access
+nmap --script ftp-anon --script-args ftp-anon.maxlist=100 -p 21 <target>
+
+# Download configuration files
+# Extract credentials for lateral movement
+```
+
+### Success Metrics for eJPT
 - Anonymous access status determined
-- System information gathered
-- Vulnerability status assessed
-- Directory permissions analyzed
+- File upload capabilities identified  
+- Vulnerability presence confirmed
+- System information extracted
+- Credentials or sensitive files discovered
 
-### Time Estimates:
-- **Service detection**: 10-30 seconds
-- **Anonymous testing**: 30 seconds - 2 minutes
-- **System information**: 30 seconds - 1 minute
-- **Comprehensive scan**: 2-5 minutes
-- **Large network scan**: 10+ minutes
-
----
-
-**Last Updated**: September 2025  
-**Version**: 2.0  
-**Author**: Penetration Testing Team
-
----
-
-*Always ensure proper authorization before conducting FTP enumeration with Nmap.*
+This comprehensive FTP enumeration guide provides all essential techniques for FTP security assessment with Nmap, focusing on practical scenarios commonly encountered in penetration testing, security audits, and eJPT certification preparation.
