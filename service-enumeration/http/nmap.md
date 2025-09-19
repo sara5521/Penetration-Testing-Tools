@@ -1,4 +1,4 @@
-# 🌐 HTTP/HTTPS Service Enumeration with Nmap - Complete Guide
+# 🌐 HTTP/HTTPS Service Enumeration with Nmap - Complete Enhanced Guide
 
 This comprehensive guide includes useful Nmap scripts to enumerate HTTP/HTTPS services and assess web application security for penetration testing and security assessments.
 
@@ -10,7 +10,7 @@ This comprehensive guide includes useful Nmap scripts to enumerate HTTP/HTTPS se
 - [Directory and Path Discovery](#-2-directory-and-path-discovery)
 - [HTTP Methods Testing](#-3-http-methods-testing)
 - [Web Application Security](#-4-web-application-security-testing)
-- [WebDAV Enumeration](#-5-webdav-enumeration)
+- [WebDAV Enumeration](#-5-webdav-enumeration---enhanced)
 - [SSL/TLS Assessment](#-6-ssltls-and-https-testing)
 - [CMS and Framework Detection](#-7-content-management-systems-and-frameworks)
 - [Authentication Testing](#-8-authentication-testing)
@@ -264,33 +264,78 @@ Web application security testing identifies common vulnerabilities that can lead
 
 ---
 
-## 📂 5. WebDAV Enumeration
-```bash
-# Basic WebDAV discovery
-nmap --script http-enum -sV -p 80,443 <target-ip>
+## 📂 5. WebDAV Enumeration - Enhanced
 
-# Specific WebDAV scanning
-nmap --script http-webdav-scan -p 80,443 <target-ip>
-
-# WebDAV methods testing
-nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target-ip>
-
-# Complete WebDAV assessment
-nmap --script http-webdav-scan,http-methods,http-enum -p 80,443 <target-ip>
-
-# Common WebDAV paths testing
-for path in /webdav/ /dav/ /uploads/ /_vti_bin/ /exchange/ /public/; do
-  echo "Testing path: $path"
-  nmap --script http-methods --script-args http-methods.url-path=$path <target-ip>
-done
-```
-**Purpose:**
+### 🔍 WebDAV Detection with Nmap - Complete Methodology
 
 WebDAV (Web Distributed Authoring and Versioning) allows clients to edit and manage files on remote web servers. Poor WebDAV configuration can lead to:
 - Unauthorized file uploads
 - Web shell deployment
 - Sensitive file access
 - Remote code execution
+
+### WebDAV-Specific Scripts
+
+#### 1. HTTP-ENUM Script for WebDAV Discovery
+```bash
+# Basic HTTP enumeration with WebDAV detection
+nmap --script http-enum -sV -p 80 demo.ine.local
+```
+
+**Expected Output from Lab:**
+```
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-07-10 12:25 IST
+Nmap scan report for demo.ine.local (10.0.28.105)
+Host is up (0.0027s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 10.0
+| http-server-header: Microsoft-IIS/10.0
+| http-enum:
+|_  /webdav/: Potentially interesting folder (401 Unauthorized)
+
+Service info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Nmap done: 1 IP address (1 host up) scanned in 16.58 seconds
+```
+
+**Analysis:** The http-enum script discovered the `/webdav/` directory returning a 401 Unauthorized status, indicating WebDAV is enabled but requires authentication.
+
+#### 2. HTTP-WebDAV-Scan Script
+```bash
+# Dedicated WebDAV scanning script
+nmap --script http-webdav-scan -p 80 demo.ine.local
+```
+
+**Expected Output:**
+```
+PORT   STATE SERVICE
+80/tcp open  http
+| http-webdav-scan: 
+|   WebDAV type: Unknown
+|   Server type: Microsoft-IIS/10.0
+|   Server date: Wed, 10 Jul 2024 06:55:21 GMT
+|   Allowed methods: OPTIONS, TRACE, GET, HEAD, POST, COPY, PROPFIND, DELETE, MOVE, PROPPATCH, MKCOL, LOCK, UNLOCK
+|_  Public options: OPTIONS, TRACE, GET, HEAD, POST, PROPFIND, PROPPATCH, MKCOL, LOCK, UNLOCK
+```
+
+#### 3. HTTP-Methods Detection
+```bash
+# Check available HTTP methods on WebDAV endpoint
+nmap --script http-methods --script-args http-methods.url-path=/webdav/ -p 80 demo.ine.local
+```
+
+**Expected Output:**
+```
+PORT   STATE SERVICE
+80/tcp open  http
+| http-methods: 
+|   Supported Methods: OPTIONS GET HEAD POST PUT DELETE TRACE COPY MOVE PROPFIND PROPPATCH MKCOL LOCK UNLOCK
+|   Potentially risky methods: PUT DELETE TRACE COPY MOVE PROPPATCH MKCOL LOCK UNLOCK
+|_  Path tested: /webdav/
+```
+
+### Complete WebDAV Assessment Workflow
 
 **INE Lab Example - Complete WebDAV Assessment:**
 ```bash
@@ -306,6 +351,7 @@ nmap --script http-webdav-scan -p 80 demo.ine.local
 # Step 4: Methods testing on WebDAV directory
 nmap --script http-methods --script-args http-methods.url-path=/webdav/ demo.ine.local
 ```
+
 **Expected Complete Output:**
 ```bash
 PORT   STATE SERVICE VERSION
@@ -332,6 +378,100 @@ PORT   STATE SERVICE VERSION
 - **Authentication required** (401 status)
 - **WebDAV methods available**: COPY, PROPFIND, LOCK, UNLOCK
 - **Microsoft IIS 10.0** hosting the WebDAV service
+
+### Key WebDAV Indicators from Lab Results
+
+**From the actual lab scan:**
+- **WebDAV Directory:** `/webdav/` directory discovered
+- **Authentication Required:** 401 Unauthorized response
+- **Server Type:** Microsoft IIS httpd 10.0
+- **Dangerous Methods:** PUT, DELETE, MKCOL methods available
+- **Security Assessment:** High risk due to file upload capabilities
+
+### eJPT WebDAV Detection Focus
+
+#### Critical Commands for eJPT
+```bash
+# Primary WebDAV detection command
+nmap --script http-enum -p 80 [target]
+
+# Verify WebDAV capabilities  
+nmap --script http-webdav-scan -p 80 [target]
+
+# Check risky HTTP methods
+nmap --script http-methods --script-args http-methods.url-path=/webdav/ -p 80 [target]
+```
+
+#### What to Look For in Results
+- **WebDAV directories** returning 401/403 status codes
+- **Dangerous HTTP methods** like PUT, DELETE, MKCOL
+- **Server headers** indicating WebDAV support
+- **Authentication mechanisms** (Basic, Digest, NTLM)
+
+### Integration with Other Tools
+
+#### Nmap to DAVtest Workflow
+```bash
+# 1. Discover WebDAV with Nmap
+nmap --script http-enum -p 80 target
+
+# 2. If WebDAV found, test capabilities
+davtest -url http://target/webdav
+
+# 3. If authentication needed, use credentials
+davtest -auth user:pass -url http://target/webdav
+```
+
+#### Nmap to Metasploit Workflow
+```bash
+# 1. Nmap identifies WebDAV and methods
+nmap --script http-webdav-scan -p 80 target
+
+# 2. Metasploit exploitation if vulnerable
+msfconsole
+use exploit/windows/iis/iis_webdav_upload_asp
+set RHOSTS target
+```
+
+### Additional WebDAV-Related Nmap Scripts
+
+#### Comprehensive WebDAV Script Collection
+```bash
+# All WebDAV-related scripts
+nmap --script "http-webdav*" -p 80 target
+nmap --script "http-methods,http-enum" -p 80 target
+nmap --script "http-auth*" -p 80 target
+```
+
+#### Authentication Testing
+```bash
+# Test WebDAV authentication methods
+nmap --script http-auth-finder --script-args http-auth-finder.url=/webdav/ -p 80 target
+
+# Brute force WebDAV credentials (if needed)
+nmap --script http-brute --script-args http-brute.path=/webdav/ -p 80 target
+```
+
+### Traditional WebDAV Testing Commands
+```bash
+# Basic WebDAV discovery
+nmap --script http-enum -sV -p 80,443 <target-ip>
+
+# Specific WebDAV scanning
+nmap --script http-webdav-scan -p 80,443 <target-ip>
+
+# WebDAV methods testing
+nmap --script http-methods --script-args http-methods.url-path=/webdav/ <target-ip>
+
+# Complete WebDAV assessment
+nmap --script http-webdav-scan,http-methods,http-enum -p 80,443 <target-ip>
+
+# Common WebDAV paths testing
+for path in /webdav/ /dav/ /uploads/ /_vti_bin/ /exchange/ /public/; do
+  echo "Testing path: $path"
+  nmap --script http-methods --script-args http-methods.url-path=$path <target-ip>
+done
+```
 
 **Next Steps for WebDAV:**
 1. Attempt to find credentials for WebDAV access
@@ -777,6 +917,67 @@ grep -E "(weak|vulnerable|deprecated)" http_enumeration.nmap
 
 ---
 
+## 📊 Complete WebDAV Assessment Lab Example
+
+### Real-World WebDAV Server Assessment
+Based on the INE lab environment with `demo.ine.local`:
+
+```bash
+# Complete WebDAV reconnaissance workflow
+echo "=== Phase 1: Basic Service Discovery ==="
+nmap -sV -p 80 demo.ine.local
+
+echo "=== Phase 2: HTTP Directory Enumeration ==="
+nmap --script http-enum -p 80 demo.ine.local
+
+echo "=== Phase 3: WebDAV Specific Testing ==="
+nmap --script http-webdav-scan -p 80 demo.ine.local
+
+echo "=== Phase 4: HTTP Methods Analysis ==="
+nmap --script http-methods --script-args http-methods.url-path=/webdav/ demo.ine.local
+
+echo "=== Phase 5: Authentication Testing ==="
+nmap --script http-auth-finder --script-args http-auth-finder.url=/webdav/ -p 80 demo.ine.local
+```
+
+### Expected Complete Lab Results:
+```bash
+# Phase 1 Results
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 10.0
+
+# Phase 2 Results  
+| http-enum: 
+|_  /webdav/: Potentially interesting folder (401 Unauthorized)
+
+# Phase 3 Results
+| http-webdav-scan: 
+|   WebDAV type: Unknown
+|   Server type: Microsoft-IIS/10.0
+|   Allowed methods: OPTIONS, TRACE, GET, HEAD, POST, COPY, PROPFIND, DELETE, MOVE, PROPPATCH, MKCOL, LOCK, UNLOCK
+|_  Public options: OPTIONS, TRACE, GET, HEAD, POST, PROPFIND, PROPPATCH, MKCOL, LOCK, UNLOCK
+
+# Phase 4 Results
+| http-methods: 
+|   Supported Methods: OPTIONS GET HEAD POST PUT DELETE TRACE COPY MOVE PROPFIND PROPPATCH MKCOL LOCK UNLOCK
+|   Potentially risky methods: PUT DELETE TRACE COPY MOVE PROPPATCH MKCOL LOCK UNLOCK
+|_  Path tested: /webdav/
+
+# Phase 5 Results
+| http-auth-finder: 
+|   Requires authentication:
+|_    /webdav/ (401 Basic realm="WebDAV")
+```
+
+### Critical Assessment Summary:
+- ✅ **WebDAV Service Confirmed**: Active on `/webdav/` directory
+- ⚠️ **Authentication Required**: HTTP Basic Authentication
+- 🔴 **High-Risk Methods Available**: PUT, DELETE, MKCOL for file operations
+- 🎯 **Attack Vector**: File upload capabilities if credentials obtained
+- 📋 **Next Steps**: Credential testing, file upload attempts
+
+---
+
 ## 📖 References and Further Reading
 
 ### Official Documentation:
@@ -792,9 +993,17 @@ grep -E "(weak|vulnerable|deprecated)" http_enumeration.nmap
 - [Gobuster](https://github.com/OJ/gobuster) - Directory/file brute-forcer
 - [Nikto](https://github.com/sullo/nikto) - Web server scanner
 - [Burp Suite](https://portswigger.net/burp) - Web application testing platform
+- [DAVtest](https://github.com/cldrn/davtest) - WebDAV testing tool
+- [Cadaver](http://www.webdav.org/cadaver/) - WebDAV client
+
+### WebDAV Specific Resources:
+- [Microsoft IIS WebDAV Configuration](https://docs.microsoft.com/en-us/iis/configuration/system.webserver/webdav/) - Official IIS WebDAV documentation
+- [WebDAV Security Best Practices](https://owasp.org/www-community/attacks/WebDAV_attacks) - OWASP WebDAV attack documentation
+- [WebDAV Exploitation Techniques](https://www.sans.org/white-papers/1658/) - SANS WebDAV security paper
 
 ---
 
 **Last Updated**: September 2025  
-**Version**: 2.0  
-**Scope**: Complete HTTP/HTTPS Service Enumeration Guide
+**Version**: 2.1 - Enhanced with Real Lab WebDAV Testing  
+**Scope**: Complete HTTP/HTTPS Service Enumeration Guide with WebDAV Focus
+**Lab Integration**: INE demo.ine.local WebDAV testing examples included
